@@ -1,15 +1,20 @@
 package com.rejs.registration.domain.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
+@NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Entity
 @Table(name = "registrations")
 public class Registration {
     @Id
+    @GeneratedValue
     @Column(name = "registration_id")
     private Long id;
 

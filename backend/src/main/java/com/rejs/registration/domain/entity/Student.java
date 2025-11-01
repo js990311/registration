@@ -1,17 +1,22 @@
 package com.rejs.registration.domain.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.springframework.data.repository.query.Param;
 
 import java.util.ArrayList;
 import java.util.List;
 
+@NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Entity
 @Table(name = "students")
 public class Student {
     @Id
+    @GeneratedValue
     @Column(name = "student_id")
     private Long id;
 
