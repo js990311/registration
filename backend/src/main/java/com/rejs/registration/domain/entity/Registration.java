@@ -25,6 +25,10 @@ public class Registration {
     @JoinColumn(name = "student_id")
     private Student student;
 
+    public Long getStudentId(){
+        return student != null ? student.getId() : null;
+    }
+
     /**
      * entity 패키지 내부에서만 사용
      * @param student 매핑할 student
@@ -73,4 +77,12 @@ public class Registration {
         }
     }
 
+    public Long getLectureId(){
+        return lecture != null ? lecture.getId() : null;
+    }
+
+    public Registration(Student student, Lecture lecture) {
+        this.student = student;
+        this.lecture = lecture;
+    }
 }

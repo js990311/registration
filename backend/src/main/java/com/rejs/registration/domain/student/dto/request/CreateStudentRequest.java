@@ -5,4 +5,8 @@ import lombok.Getter;
 @Getter
 public class CreateStudentRequest {
     private String name;
+
+    public CreateStudentRequest(String name) {
+        this.name = name;
+    }
 }

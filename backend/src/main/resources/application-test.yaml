@@ -1,13 +1,9 @@
 spring:
   application:
     name: registration
-  datasource:
-    url: jdbc:mariadb://localhost:3306/lecture_db
-    username: user
-    password: password
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: update
     properties:
       hibernate:
         format_sql: true
