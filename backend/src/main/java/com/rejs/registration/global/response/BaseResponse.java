@@ -14,6 +14,11 @@ public class BaseResponse <T>{
         this.body = body;
     }
 
+    public static <T> BaseResponse<T> ok(T body){
+        // ok나 created같은 경우는 그대로 내보냄
+        return new BaseResponse<>(new BaseResponseHeader(HttpStatus.OK.value(), HttpStatus.OK.getReasonPhrase()), body);
+    }
+
     public static <T> BaseResponse<T> of(HttpStatus status, T body){
         // ok나 created같은 경우는 그대로 내보냄
         return new BaseResponse<>(new BaseResponseHeader(status.value(), status.getReasonPhrase()), body);

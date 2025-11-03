@@ -9,6 +9,7 @@ import com.rejs.registration.domain.registration.repository.RegistrationReposito
 import com.rejs.registration.domain.registration.service.RegistrationService;
 import com.rejs.registration.domain.student.dto.request.CreateStudentRequest;
 import com.rejs.registration.domain.student.repository.StudentRepository;
+import com.rejs.token_starter.token.JwtUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -51,12 +52,19 @@ class RegistrationControllerTest {
     @Autowired
     private StudentRepository studentRepository;
 
+    @Autowired
+    private JwtUtils jwtUtils;
+
     private Long lectureId = 1L;
     private String lectureName = "동시성강의";
     private Integer capacity = 2;
     private Long student1Id;
     private Long student2Id;
     private Long student3Id;
+
+    private String student1Token;
+    private String student2Token;
+    private String student3Token;
 
     @BeforeEach
     void setup(){
@@ -67,14 +75,17 @@ class RegistrationControllerTest {
         Student student1 = new Student("student1");
         student1 = studentRepository.save(student1);
         student1Id = student1.getId();
+        student1Token = jwtUtils.generateToken(student1.getId().toString(), "ROLE_USER").getAccessToken();
 
         Student student2 = new Student("student2");
         student2 = studentRepository.save(student2);
         student2Id = student2.getId();
+        student2Token = jwtUtils.generateToken(student2.getId().toString(), "ROLE_USER").getAccessToken();
 
         Student student3 = new Student("student3");
         student3 = studentRepository.save(student3);
         student3Id = student3.getId();
+        student3Token = jwtUtils.generateToken(student3.getId().toString(), "ROLE_USER").getAccessToken();
     }
 
     @AfterEach
@@ -92,7 +103,7 @@ class RegistrationControllerTest {
         ResultActions result = mockMvc.perform(post("/registrations")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
-                .header("X-Temp-Authentication", student1Id)
+                .header("Authorization","Bearer " + student1Token)
         );
 
         result.andExpect(status().isCreated())
@@ -109,12 +120,12 @@ class RegistrationControllerTest {
         ResultActions result = mockMvc.perform(post("/registrations")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
-                .header("X-Temp-Authentication", 0)
+                .header("Authorization", "Not Token")
         );
 
         result.andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.header.status").value(401))
-                .andExpect(jsonPath("$.header.message").value("Unauthorized"))
+                .andExpect(jsonPath("$.header.message").value("InvalidToken"))
                 .andExpect(jsonPath("$.body").isEmpty())
         ;
     }
@@ -125,7 +136,7 @@ class RegistrationControllerTest {
         ResultActions result = mockMvc.perform(post("/registrations")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
-                .header("X-Temp-Authentication", student1Id)
+                .header("Authorization","Bearer " + student1Token)
         );
 
         result.andExpect(status().isNotFound())
@@ -142,17 +153,17 @@ class RegistrationControllerTest {
         mockMvc.perform(post("/registrations")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
-                .header("X-Temp-Authentication", student1Id)
-        );
+                .header("Authorization","Bearer " + student1Token)
+                );
         mockMvc.perform(post("/registrations")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
-                .header("X-Temp-Authentication", student2Id)
+                .header("Authorization","Bearer " + student2Token)
         );
         ResultActions result = mockMvc.perform(post("/registrations")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
-                .header("X-Temp-Authentication", student3Id)
+                .header("Authorization","Bearer " + student3Token)
         );
 
         result.andExpect(status().isConflict())
@@ -169,12 +180,12 @@ class RegistrationControllerTest {
         mockMvc.perform(post("/registrations")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
-                .header("X-Temp-Authentication", student1Id)
+                .header("Authorization","Bearer " + student2Token)
         );
         ResultActions result = mockMvc.perform(post("/registrations")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
-                .header("X-Temp-Authentication", student1Id)
+                .header("Authorization","Bearer " + student2Token)
         );
 
         result.andExpect(status().isConflict())

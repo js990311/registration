@@ -11,6 +11,7 @@ import com.rejs.registration.domain.registration.repository.RegistrationReposito
 import com.rejs.registration.domain.student.repository.StudentRepository;
 import com.rejs.registration.global.exception.GlobalException;
 import com.rejs.registration.global.exception.NotFoundException;
+import com.rejs.token_starter.token.ClaimsDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -25,9 +26,9 @@ public class RegistrationService {
     private final LectureRepository lectureRepository;
 
     @Transactional
-    public CreateRegistrationResponse create(Long studentId, CreateRegistrationRequest request) {
+    public CreateRegistrationResponse create(ClaimsDto claims, CreateRegistrationRequest request) {
         Lecture lecture = lectureRepository.findById(request.getLectureId()).orElseThrow(NotFoundException::lectureNotFound);
-        Student student = studentRepository.findById(studentId).orElseThrow(()->new GlobalException(HttpStatus.UNAUTHORIZED.getReasonPhrase(), HttpStatus.UNAUTHORIZED));
+        Student student = studentRepository.findById(Long.parseLong(claims.getUsername())).orElseThrow(()->new GlobalException(HttpStatus.UNAUTHORIZED.getReasonPhrase(), HttpStatus.UNAUTHORIZED));
         Registration registration = new Registration(student, lecture);
 
         // 중복 신청 여부 확인

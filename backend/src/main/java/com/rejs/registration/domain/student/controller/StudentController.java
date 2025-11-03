@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 public class StudentController {
     private final StudentService studentService;
 
+    @Deprecated
     @PostMapping
     public ResponseEntity<BaseResponse<StudentDto>> createLecture(@RequestBody CreateStudentRequest request){
         StudentDto student = studentService.create(request);

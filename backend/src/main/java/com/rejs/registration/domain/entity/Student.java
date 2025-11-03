@@ -23,6 +23,9 @@ public class Student {
     @Column
     private String name;
 
+    @Column
+    private String password;
+
     @OneToMany(mappedBy = "student")
     private List<Registration> registrations = new ArrayList<>();
 
@@ -42,5 +45,10 @@ public class Student {
 
     public Student(String name) {
         this.name = name;
+    }
+
+    public Student(String name, String password) {
+        this.name = name;
+        this.password = password;
     }
 }
