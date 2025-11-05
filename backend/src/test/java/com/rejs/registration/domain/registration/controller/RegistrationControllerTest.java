@@ -3,8 +3,11 @@ package com.rejs.registration.domain.registration.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rejs.registration.TestcontainersConfiguration;
 import com.rejs.registration.domain.entity.Lecture;
+import com.rejs.registration.domain.entity.Registration;
+import com.rejs.registration.domain.entity.RegistrationPeriod;
 import com.rejs.registration.domain.entity.Student;
 import com.rejs.registration.domain.lecture.repository.LectureRepository;
+import com.rejs.registration.domain.registration.repository.RegistrationPeriodRepository;
 import com.rejs.registration.domain.registration.repository.RegistrationRepository;
 import com.rejs.registration.domain.registration.service.RegistrationService;
 import com.rejs.registration.domain.student.dto.request.CreateStudentRequest;
@@ -22,8 +25,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDateTime;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -51,6 +53,9 @@ class RegistrationControllerTest {
 
     @Autowired
     private StudentRepository studentRepository;
+
+    @Autowired
+    private RegistrationPeriodRepository periodRepository;
 
     @Autowired
     private JwtUtils jwtUtils;
@@ -86,15 +91,18 @@ class RegistrationControllerTest {
         student3 = studentRepository.save(student3);
         student3Id = student3.getId();
         student3Token = jwtUtils.generateToken(student3.getId().toString(), "ROLE_USER").getAccessToken();
+
+        LocalDateTime start = LocalDateTime.now().minusDays(1);
+        LocalDateTime end = start.plusDays(7);
+        periodRepository.save(new RegistrationPeriod(start, end));
     }
 
     @AfterEach
     void clear(){
         registrationRepository.deleteAll();
-        lectureRepository.deleteById(lectureId);
-        studentRepository.deleteById(student1Id);
-        studentRepository.deleteById(student2Id);
-        studentRepository.deleteById(student3Id);
+        lectureRepository.deleteAll();
+        studentRepository.deleteAll();
+        periodRepository.deleteAll();;
     }
 
     @Test
@@ -191,6 +199,29 @@ class RegistrationControllerTest {
         result.andExpect(status().isConflict())
                 .andExpect(jsonPath("$.header.status").value(409))
                 .andExpect(jsonPath("$.header.message").value("Lecture already registered"))
+                .andExpect(jsonPath("$.body").isEmpty())
+        ;
+    }
+
+    @Test
+    void registFailBecauseisNotRegistrationPeriod() throws Exception{
+        // 유효한 수강신청가능시간을 제거하고, 유효하지 않은 수강신청기간 생성
+        periodRepository.deleteAll();
+        LocalDateTime start = LocalDateTime.now().minusDays(30);
+        LocalDateTime end = start.plusDays(7);
+        periodRepository.save(new RegistrationPeriod(start, end));
+
+        Map<String, Object> request = Map.of("lectureId", lectureId);
+
+        ResultActions result = mockMvc.perform(post("/registrations")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request))
+                .header("Authorization","Bearer " + student1Token)
+        );
+
+        result.andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.header.status").value(403))
+                .andExpect(jsonPath("$.header.message").value("Not RegistrationPeriod"))
                 .andExpect(jsonPath("$.body").isEmpty())
         ;
     }

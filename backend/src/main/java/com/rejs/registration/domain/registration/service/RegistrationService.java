@@ -2,11 +2,13 @@ package com.rejs.registration.domain.registration.service;
 
 import com.rejs.registration.domain.entity.Lecture;
 import com.rejs.registration.domain.entity.Registration;
+import com.rejs.registration.domain.entity.RegistrationPeriod;
 import com.rejs.registration.domain.entity.Student;
 import com.rejs.registration.domain.lecture.repository.LectureRepository;
 import com.rejs.registration.domain.lecture.service.LectureService;
 import com.rejs.registration.domain.registration.dto.reqeust.CreateRegistrationRequest;
 import com.rejs.registration.domain.registration.dto.response.CreateRegistrationResponse;
+import com.rejs.registration.domain.registration.repository.RegistrationPeriodRepository;
 import com.rejs.registration.domain.registration.repository.RegistrationRepository;
 import com.rejs.registration.domain.student.repository.StudentRepository;
 import com.rejs.registration.global.exception.GlobalException;
@@ -17,16 +19,23 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
+import java.util.List;
+
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
 public class RegistrationService {
     private final RegistrationRepository registrationRepository;
+    private final RegistrationPeriodRepository periodRepository;
     private final StudentRepository studentRepository;
     private final LectureRepository lectureRepository;
 
     @Transactional
     public CreateRegistrationResponse create(ClaimsDto claims, CreateRegistrationRequest request) {
+        if(!validateRegistarionPeriod(LocalDateTime.now())){
+            throw new GlobalException("Not RegistrationPeriod", HttpStatus.FORBIDDEN);
+        }
         Lecture lecture = lectureRepository.findById(request.getLectureId()).orElseThrow(NotFoundException::lectureNotFound);
         Student student = studentRepository.findById(Long.parseLong(claims.getUsername())).orElseThrow(()->new GlobalException(HttpStatus.UNAUTHORIZED.getReasonPhrase(), HttpStatus.UNAUTHORIZED));
         Registration registration = new Registration(student, lecture);
@@ -44,5 +53,11 @@ public class RegistrationService {
 
         registration = registrationRepository.save(registration);
         return CreateRegistrationResponse.from(registration);
+    }
+
+    public boolean validateRegistarionPeriod(LocalDateTime now){
+        List<RegistrationPeriod> periods = periodRepository.findByPeroid(now);
+        // 나중에 1학년만 가능 등등 옵션 추가가능할 수 있도록
+        return !periods.isEmpty();
     }
 }
