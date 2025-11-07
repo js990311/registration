@@ -36,21 +36,21 @@ public class RegistrationService {
         if(!validateRegistarionPeriod(LocalDateTime.now())){
             throw new GlobalException("Not RegistrationPeriod", HttpStatus.FORBIDDEN);
         }
-        Lecture lecture = lectureRepository.findById(request.getLectureId()).orElseThrow(NotFoundException::lectureNotFound);
+        Lecture lecture = lectureRepository.findByIdWithLock(request.getLectureId()).orElseThrow(NotFoundException::lectureNotFound);
         Student student = studentRepository.findById(Long.parseLong(claims.getUsername())).orElseThrow(()->new GlobalException(HttpStatus.UNAUTHORIZED.getReasonPhrase(), HttpStatus.UNAUTHORIZED));
-        Registration registration = new Registration(student, lecture);
 
-        // 중복 신청 여부 확인
+        // 중복 신청여부 확인
         if(registrationRepository.isAlreadyRegistered(lecture.getId(), student.getId())){
             throw new GlobalException("Lecture already registered", HttpStatus.CONFLICT);
         }
 
-        // capacity 초과 검사
-        Long count = registrationRepository.countByLectureId(lecture.getId());
-        if (count >= lecture.getCapacity()){
-            throw new GlobalException("Lecture is already full", HttpStatus.CONFLICT);
+        // 강의가 여전히 신청가능한지 확인
+        if(!lecture.hasCapacity()){
+            throw new GlobalException("Lecture already registered", HttpStatus.CONFLICT);
         }
 
+        // registration 생성 -> 이때 lecture entity의 increaseStudent를 Registration의 생성자 내에서 호출
+        Registration registration = new Registration(student, lecture);
         registration = registrationRepository.save(registration);
         return CreateRegistrationResponse.from(registration);
     }

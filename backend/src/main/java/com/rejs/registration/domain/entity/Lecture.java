@@ -19,6 +19,12 @@ public class Lecture {
     @Column(name = "lecture_id")
     private Long id;
 
+    /*
+        반정규화 컬럼이지만 비관적-낙관적 lock을 위해서 추가
+     */
+    @Column
+    private Integer studentCount;
+
     @Column
     private Integer capacity;
 
@@ -45,5 +51,18 @@ public class Lecture {
     public Lecture(String name, Integer capacity) {
         this.capacity = capacity;
         this.name = name;
+        this.studentCount = 0;
+    }
+
+    void increaseStudent(){
+        this.studentCount++;
+    }
+
+    void decreaseStudent(){
+        this.studentCount--;
+    }
+
+    public boolean hasCapacity(){
+        return this.studentCount < this.capacity;
     }
 }

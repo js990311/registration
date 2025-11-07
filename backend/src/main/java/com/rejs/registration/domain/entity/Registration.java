@@ -11,7 +11,9 @@ import java.util.List;
 @AllArgsConstructor
 @Getter
 @Entity
-@Table(name = "registrations")
+@Table(name = "registrations", uniqueConstraints = {
+        @UniqueConstraint(name = "duplicate_registraion", columnNames = {"lecture_id", "student_id"})
+})
 public class Registration {
     @Id
     @GeneratedValue
@@ -84,5 +86,6 @@ public class Registration {
     public Registration(Student student, Lecture lecture) {
         this.student = student;
         this.lecture = lecture;
+        this.lecture.increaseStudent();
     }
 }
