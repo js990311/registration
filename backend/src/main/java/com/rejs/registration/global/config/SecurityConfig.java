@@ -5,7 +5,9 @@ import com.rejs.registration.domain.student.repository.StudentRepository;
 import com.rejs.registration.global.authentication.UserDetailServiceImpl;
 import com.rejs.registration.global.authentication.exception.AuthenticationFailException;
 import com.rejs.registration.global.exception.GlobalException;
+import com.rejs.registration.global.problem.ProblemCode;
 import com.rejs.registration.global.response.BaseResponse;
+import com.rejs.registration.global.response.ProblemResponse;
 import com.rejs.token_starter.config.AutoJwtTokenConfiguration;
 import com.rejs.token_starter.config.JwtProperties;
 import com.rejs.token_starter.filter.JwtAuthenticationFilter;
@@ -77,15 +79,17 @@ public class SecurityConfig {
                 .exceptionHandling(handler -> handler
                         .authenticationEntryPoint(((request, response, ex) -> {
                             response.setContentType("application/json");
-                            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+                            ProblemCode code = ProblemCode.INVALID_TOKEN;
+                            response.setStatus(code.getStatus().value());
                             PrintWriter writer = response.getWriter();
-                            writer.write(mapper.writeValueAsString(BaseResponse.fromException(AuthenticationFailException.invalidToken())));
+                            writer.write(mapper.writeValueAsString(new ProblemResponse(code, request.getRequestURI(), null)));
                         }))
-                        .accessDeniedHandler((requst, response, ex)->{
+                        .accessDeniedHandler((request, response, ex)->{
                             response.setContentType("application/json");
-                            response.setStatus(HttpStatus.FORBIDDEN.value());
+                            ProblemCode code = ProblemCode.ACCESS_DENIED;
+                            response.setStatus(code.getStatus().value());
                             PrintWriter writer = response.getWriter();
-                            writer.write(mapper.writeValueAsString(BaseResponse.fromException(new GlobalException("AccessDenied", HttpStatus.FORBIDDEN))));
+                            writer.write(mapper.writeValueAsString(new ProblemResponse(code, request.getRequestURI(), null)));
                         }
                 ))
         ;

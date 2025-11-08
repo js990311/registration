@@ -19,15 +19,15 @@ public class StudentController {
 
     @Deprecated
     @PostMapping
-    public ResponseEntity<BaseResponse<StudentDto>> createLecture(@RequestBody CreateStudentRequest request){
+    public ResponseEntity<StudentDto> createLecture(@RequestBody CreateStudentRequest request){
         StudentDto student = studentService.create(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(BaseResponse.of(HttpStatus.CREATED, student));
+        return ResponseEntity.status(HttpStatus.CREATED).body(student);
     }
 
     @GetMapping("/{id}")
-    public BaseResponse<StudentDto> getById(@PathVariable("id") Long id){
+    public StudentDto getById(@PathVariable("id") Long id){
         StudentDto student = studentService.findById(id);
-        return BaseResponse.of(HttpStatus.OK, student);
+        return student;
     }
 
 }

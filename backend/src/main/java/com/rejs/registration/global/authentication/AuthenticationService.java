@@ -32,7 +32,7 @@ public class AuthenticationService {
         }catch (BadCredentialsException ex){ // BadCredentialException
             throw AuthenticationFailException.userInfoMismatch();
         }catch (RuntimeException ex){
-            throw AuthenticationFailException.authenticationFail();
+            throw ex;
         }
     }
 

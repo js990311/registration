@@ -3,6 +3,7 @@ package com.rejs.registration.domain.lecture.service;
 import com.rejs.registration.domain.entity.Lecture;
 import com.rejs.registration.domain.lecture.dto.LectrueDto;
 import com.rejs.registration.domain.lecture.dto.request.CreateLectureRequest;
+import com.rejs.registration.domain.lecture.exception.LectureBusinessException;
 import com.rejs.registration.domain.lecture.repository.LectureRepository;
 import com.rejs.registration.global.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +25,7 @@ public class LectureService {
 
 
     public LectrueDto findById(Long id) {
-        Lecture lecture = lectureRepository.findById(id).orElseThrow(NotFoundException::lectureNotFound);
+        Lecture lecture = lectureRepository.findById(id).orElseThrow(LectureBusinessException::lectureNotFound);
         return LectrueDto.from(lecture);
     }
 }

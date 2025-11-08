@@ -16,14 +16,14 @@ public class AuthenticationController {
     private final AuthenticationService authenticationService;
 
     @PostMapping("login")
-    public BaseResponse<Tokens> login(@RequestBody LoginRequest request){
+    public Tokens login(@RequestBody LoginRequest request){
         Tokens tokens = authenticationService.login(request);
-        return BaseResponse.ok(tokens);
+        return tokens;
     }
 
     @PostMapping("signup")
-    public ResponseEntity<BaseResponse<Tokens>> signup(@RequestBody LoginRequest request){
+    public ResponseEntity<Tokens> signup(@RequestBody LoginRequest request){
         Tokens tokens = authenticationService.signup(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(BaseResponse.of(HttpStatus.CREATED, tokens));
+        return ResponseEntity.status(HttpStatus.CREATED).body(tokens);
     }
 }

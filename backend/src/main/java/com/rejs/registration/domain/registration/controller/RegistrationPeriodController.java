@@ -20,8 +20,8 @@ public class RegistrationPeriodController {
     private final RegistrationPeriodService registrationPeriodService;
 
     @PostMapping
-    public ResponseEntity<BaseResponse<RegistrationPeriodDto>> createPeriod(@RequestBody CreatePeriodRequest request){
+    public ResponseEntity<RegistrationPeriodDto> createPeriod(@RequestBody CreatePeriodRequest request){
         RegistrationPeriodDto period = registrationPeriodService.create(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(BaseResponse.of(HttpStatus.CREATED,period));
+        return ResponseEntity.status(HttpStatus.CREATED).body(period);
     }
 }

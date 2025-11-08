@@ -3,6 +3,7 @@ package com.rejs.registration.global.authentication;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rejs.registration.TestcontainersConfiguration;
 import com.rejs.registration.domain.student.repository.StudentRepository;
+import com.rejs.registration.global.problem.ProblemCode;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -53,10 +54,8 @@ class AuthenticationControllerTest {
         );
         result
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.header.status").value(200))
-                .andExpect(jsonPath("$.header.message").value("OK"))
-                .andExpect(jsonPath("$.body.accessToken").isString())
-                .andExpect(jsonPath("$.body.refreshToken").isString())
+                .andExpect(jsonPath("$.accessToken").isString())
+                .andExpect(jsonPath("$.refreshToken").isString())
         ;
     }
 
@@ -72,10 +71,8 @@ class AuthenticationControllerTest {
         );
         result
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.header.status").value(201))
-                .andExpect(jsonPath("$.header.message").value("Created"))
-                .andExpect(jsonPath("$.body.accessToken").isString())
-                .andExpect(jsonPath("$.body.refreshToken").isString())
+                .andExpect(jsonPath("$.accessToken").isString())
+                .andExpect(jsonPath("$.refreshToken").isString())
         ;
     }
 
@@ -97,9 +94,10 @@ class AuthenticationControllerTest {
         );
         result
                 .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.header.status").value(401))
-                .andExpect(jsonPath("$.header.message").value("UserInfoMismatch"))
-                .andExpect(jsonPath("$.body").isEmpty())
+                .andExpect(jsonPath("$.type").value(ProblemCode.USER_INFO_MISMATCH.getType()))
+                .andExpect(jsonPath("$.title").value(ProblemCode.USER_INFO_MISMATCH.getTitle()))
+                .andExpect(jsonPath("$.status").value(ProblemCode.USER_INFO_MISMATCH.getStatus().value()))
+                .andExpect(jsonPath("$.instance").value("/login"))
         ;
     }
 

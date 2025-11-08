@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rejs.registration.TestcontainersConfiguration;
 import com.rejs.registration.domain.entity.Student;
 import com.rejs.registration.domain.student.repository.StudentRepository;
+import com.rejs.registration.global.problem.ProblemCode;
 import com.rejs.token_starter.token.ClaimsDto;
 import com.rejs.token_starter.token.JwtUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -75,10 +76,8 @@ class StudentControllerTest {
         );
 
         result.andExpect(status().isCreated())
-                .andExpect(jsonPath("$.header.status").value(201))
-                .andExpect(jsonPath("$.header.message").value("Created"))
-                .andExpect(jsonPath("$.body.studentId").isNumber())
-                .andExpect(jsonPath("$.body.name").value(name))
+                .andExpect(jsonPath("$.studentId").isNumber())
+                .andExpect(jsonPath("$.name").value(name))
         ;
     }
 
@@ -99,10 +98,8 @@ class StudentControllerTest {
         );
 
         result.andExpect(status().isOk())
-                .andExpect(jsonPath("$.header.status").value(200))
-                .andExpect(jsonPath("$.header.message").value("OK"))
-                .andExpect(jsonPath("$.body.studentId").value(student.getId()))
-                .andExpect(jsonPath("$.body.name").value(name))
+                .andExpect(jsonPath("$.studentId").value(student.getId()))
+                .andExpect(jsonPath("$.name").value(name))
         ;
 
     }
@@ -117,9 +114,10 @@ class StudentControllerTest {
         );
 
         result.andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.header.status").value(404))
-                .andExpect(jsonPath("$.header.message").value("Student Not Found"))
-                .andExpect(jsonPath("$.body").isEmpty())
+                .andExpect(jsonPath("$.type").value(ProblemCode.STUDENT_NOT_FOUND.getType()))
+                .andExpect(jsonPath("$.title").value(ProblemCode.STUDENT_NOT_FOUND.getTitle()))
+                .andExpect(jsonPath("$.status").value(ProblemCode.STUDENT_NOT_FOUND.getStatus().value()))
+                .andExpect(jsonPath("$.instance").value("/students/0"))
         ;
 
     }

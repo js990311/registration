@@ -4,12 +4,14 @@ import com.rejs.registration.domain.entity.Lecture;
 import com.rejs.registration.domain.entity.Registration;
 import com.rejs.registration.domain.entity.RegistrationPeriod;
 import com.rejs.registration.domain.entity.Student;
+import com.rejs.registration.domain.lecture.exception.LectureBusinessException;
 import com.rejs.registration.domain.lecture.repository.LectureRepository;
-import com.rejs.registration.domain.lecture.service.LectureService;
 import com.rejs.registration.domain.registration.dto.reqeust.CreateRegistrationRequest;
 import com.rejs.registration.domain.registration.dto.response.CreateRegistrationResponse;
+import com.rejs.registration.domain.registration.exception.RegistrationBusinessException;
 import com.rejs.registration.domain.registration.repository.RegistrationPeriodRepository;
 import com.rejs.registration.domain.registration.repository.RegistrationRepository;
+import com.rejs.registration.domain.student.exception.StudentBusinessException;
 import com.rejs.registration.domain.student.repository.StudentRepository;
 import com.rejs.registration.global.exception.GlobalException;
 import com.rejs.registration.global.exception.NotFoundException;
@@ -34,19 +36,19 @@ public class RegistrationService {
     @Transactional
     public CreateRegistrationResponse create(ClaimsDto claims, CreateRegistrationRequest request) {
         if(!validateRegistarionPeriod(LocalDateTime.now())){
-            throw new GlobalException("Not RegistrationPeriod", HttpStatus.FORBIDDEN);
+            throw RegistrationBusinessException.notRegistrationPeriod();
         }
-        Lecture lecture = lectureRepository.findByIdWithLock(request.getLectureId()).orElseThrow(NotFoundException::lectureNotFound);
-        Student student = studentRepository.findById(Long.parseLong(claims.getUsername())).orElseThrow(()->new GlobalException(HttpStatus.UNAUTHORIZED.getReasonPhrase(), HttpStatus.UNAUTHORIZED));
+        Lecture lecture = lectureRepository.findByIdWithLock(request.getLectureId()).orElseThrow(LectureBusinessException::lectureNotFound);
+        Student student = studentRepository.findById(Long.parseLong(claims.getUsername())).orElseThrow(StudentBusinessException::studentNotFound);
 
         // 중복 신청여부 확인
         if(registrationRepository.isAlreadyRegistered(lecture.getId(), student.getId())){
-            throw new GlobalException("Lecture already registered", HttpStatus.CONFLICT);
+            throw RegistrationBusinessException.alreadyRegistration();
         }
 
         // 강의가 여전히 신청가능한지 확인
         if(!lecture.hasCapacity()){
-            throw new GlobalException("Lecture already registered", HttpStatus.CONFLICT);
+            throw RegistrationBusinessException.lectureAlreadyFull();
         }
 
         // registration 생성 -> 이때 lecture entity의 increaseStudent를 Registration의 생성자 내에서 호출

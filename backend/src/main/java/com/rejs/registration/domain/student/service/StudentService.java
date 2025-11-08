@@ -3,6 +3,7 @@ package com.rejs.registration.domain.student.service;
 import com.rejs.registration.domain.entity.Student;
 import com.rejs.registration.domain.student.dto.StudentDto;
 import com.rejs.registration.domain.student.dto.request.CreateStudentRequest;
+import com.rejs.registration.domain.student.exception.StudentBusinessException;
 import com.rejs.registration.domain.student.repository.StudentRepository;
 import com.rejs.registration.global.exception.NotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -24,7 +25,7 @@ public class StudentService {
 
 
     public StudentDto findById(Long id) {
-        Student student = studentRepository.findById(id).orElseThrow(NotFoundException::studentNotFound);
+        Student student = studentRepository.findById(id).orElseThrow(StudentBusinessException::studentNotFound);
         return StudentDto.from(student);
     }
 

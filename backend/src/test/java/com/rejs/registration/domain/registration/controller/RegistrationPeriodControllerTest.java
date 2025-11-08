@@ -55,11 +55,9 @@ class RegistrationPeriodControllerTest {
         );
 
         result.andExpect(status().isCreated())
-                .andExpect(jsonPath("$.header.status").value(201))
-                .andExpect(jsonPath("$.header.message").value("Created"))
-                .andExpect(jsonPath("$.body.periodId").isNumber())
-                .andExpect(jsonPath("$.body.startTime").value(now.toString()))
-                .andExpect(jsonPath("$.body.endTime").value(now.plusDays(7).toString()))
+                .andExpect(jsonPath("$.periodId").isNumber())
+                .andExpect(jsonPath("$.startTime").value(now.toString()))
+                .andExpect(jsonPath("$.endTime").value(now.plusDays(7).toString()))
         ;
     }
 }

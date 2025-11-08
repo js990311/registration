@@ -4,6 +4,7 @@ import com.rejs.registration.global.exception.GlobalException;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
+@Deprecated
 @Getter
 public class BaseResponse <T>{
     private final BaseResponseHeader header;

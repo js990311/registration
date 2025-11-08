@@ -12,6 +12,7 @@ import com.rejs.registration.domain.registration.repository.RegistrationReposito
 import com.rejs.registration.domain.registration.service.RegistrationService;
 import com.rejs.registration.domain.student.dto.request.CreateStudentRequest;
 import com.rejs.registration.domain.student.repository.StudentRepository;
+import com.rejs.registration.global.problem.ProblemCode;
 import com.rejs.token_starter.token.JwtUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -115,10 +116,8 @@ class RegistrationControllerTest {
         );
 
         result.andExpect(status().isCreated())
-                .andExpect(jsonPath("$.header.status").value(201))
-                .andExpect(jsonPath("$.header.message").value("Created"))
-                .andExpect(jsonPath("$.body.lectureId").value(lectureId))
-                .andExpect(jsonPath("$.body.registrationId").isNumber())
+                .andExpect(jsonPath("$.lectureId").value(lectureId))
+                .andExpect(jsonPath("$.registrationId").isNumber())
         ;
     }
 
@@ -132,9 +131,10 @@ class RegistrationControllerTest {
         );
 
         result.andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.header.status").value(401))
-                .andExpect(jsonPath("$.header.message").value("InvalidToken"))
-                .andExpect(jsonPath("$.body").isEmpty())
+                .andExpect(jsonPath("$.type").value(ProblemCode.INVALID_TOKEN.getType()))
+                .andExpect(jsonPath("$.title").value(ProblemCode.INVALID_TOKEN.getTitle()))
+                .andExpect(jsonPath("$.status").value(ProblemCode.INVALID_TOKEN.getStatus().value()))
+                .andExpect(jsonPath("$.instance").value("/registrations"))
         ;
     }
 
@@ -148,9 +148,10 @@ class RegistrationControllerTest {
         );
 
         result.andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.header.status").value(404))
-                .andExpect(jsonPath("$.header.message").value("Lecture Not Found"))
-                .andExpect(jsonPath("$.body").isEmpty())
+                .andExpect(jsonPath("$.type").value(ProblemCode.LECTURE_NOT_FOUND.getType()))
+                .andExpect(jsonPath("$.title").value(ProblemCode.LECTURE_NOT_FOUND.getTitle()))
+                .andExpect(jsonPath("$.status").value(ProblemCode.LECTURE_NOT_FOUND.getStatus().value()))
+                .andExpect(jsonPath("$.instance").value("/registrations"))
         ;
     }
 
@@ -175,9 +176,10 @@ class RegistrationControllerTest {
         );
 
         result.andExpect(status().isConflict())
-                .andExpect(jsonPath("$.header.status").value(409))
-                .andExpect(jsonPath("$.header.message").value("Lecture is already full"))
-                .andExpect(jsonPath("$.body").isEmpty())
+                .andExpect(jsonPath("$.type").value(ProblemCode.LECTURE_ALREADY_FULL.getType()))
+                .andExpect(jsonPath("$.title").value(ProblemCode.LECTURE_ALREADY_FULL.getTitle()))
+                .andExpect(jsonPath("$.status").value(ProblemCode.LECTURE_ALREADY_FULL.getStatus().value()))
+                .andExpect(jsonPath("$.instance").value("/registrations"))
         ;
     }
 
@@ -197,9 +199,10 @@ class RegistrationControllerTest {
         );
 
         result.andExpect(status().isConflict())
-                .andExpect(jsonPath("$.header.status").value(409))
-                .andExpect(jsonPath("$.header.message").value("Lecture already registered"))
-                .andExpect(jsonPath("$.body").isEmpty())
+                .andExpect(jsonPath("$.type").value(ProblemCode.ALREADY_REGISTRATION.getType()))
+                .andExpect(jsonPath("$.title").value(ProblemCode.ALREADY_REGISTRATION.getTitle()))
+                .andExpect(jsonPath("$.status").value(ProblemCode.ALREADY_REGISTRATION.getStatus().value()))
+                .andExpect(jsonPath("$.instance").value("/registrations"))
         ;
     }
 
@@ -220,9 +223,10 @@ class RegistrationControllerTest {
         );
 
         result.andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.header.status").value(403))
-                .andExpect(jsonPath("$.header.message").value("Not RegistrationPeriod"))
-                .andExpect(jsonPath("$.body").isEmpty())
+                .andExpect(jsonPath("$.type").value(ProblemCode.NOT_REGISTRATION_PERIOD.getType()))
+                .andExpect(jsonPath("$.title").value(ProblemCode.NOT_REGISTRATION_PERIOD.getTitle()))
+                .andExpect(jsonPath("$.status").value(ProblemCode.NOT_REGISTRATION_PERIOD.getStatus().value()))
+                .andExpect(jsonPath("$.instance").value("/registrations"))
         ;
     }
 

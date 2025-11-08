@@ -1,23 +1,27 @@
 package com.rejs.registration.global.authentication.exception;
 
+import com.rejs.registration.global.exception.BusinessException;
 import com.rejs.registration.global.exception.GlobalException;
+import com.rejs.registration.global.problem.ProblemCode;
 import org.springframework.http.HttpStatus;
 
-public class AuthenticationFailException extends GlobalException {
 
-    public AuthenticationFailException(String message, HttpStatus status) {
-        super(message, status);
+public class AuthenticationFailException extends BusinessException {
+
+    public AuthenticationFailException(ProblemCode code, String detail) {
+        super(code, detail);
     }
 
-    public static AuthenticationFailException authenticationFail(){
-        return new AuthenticationFailException("AuthenticationFail", HttpStatus.UNAUTHORIZED);
+    public AuthenticationFailException(ProblemCode code) {
+        super(code);
     }
+
     public static AuthenticationFailException userInfoMismatch(){
-        return new AuthenticationFailException("UserInfoMismatch", HttpStatus.UNAUTHORIZED);
+        return new AuthenticationFailException(ProblemCode.USER_INFO_MISMATCH);
     }
 
-    public static AuthenticationFailException invalidToken(){
-        return new AuthenticationFailException("InvalidToken", HttpStatus.UNAUTHORIZED);
+    public static AuthenticationFailException userInfoMismatch(String detail){
+        return new AuthenticationFailException(ProblemCode.USER_INFO_MISMATCH, detail);
     }
 
 }

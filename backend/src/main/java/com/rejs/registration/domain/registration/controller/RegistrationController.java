@@ -18,8 +18,8 @@ public class RegistrationController {
     private final RegistrationService registrationService;
 
     @PostMapping
-    public ResponseEntity<BaseResponse<CreateRegistrationResponse>> createRegistration(@RequestBody CreateRegistrationRequest request, @TokenClaim ClaimsDto claims){
+    public ResponseEntity<CreateRegistrationResponse> createRegistration(@RequestBody CreateRegistrationRequest request, @TokenClaim ClaimsDto claims){
         CreateRegistrationResponse response = registrationService.create(claims, request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(BaseResponse.of(HttpStatus.CREATED, response));
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 }

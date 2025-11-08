@@ -3,6 +3,7 @@ package com.rejs.registration.global.exception;
 import lombok.Getter;
 import org.springframework.http.HttpStatus;
 
+@Deprecated
 @Getter
 public class GlobalException extends RuntimeException{
     private HttpStatus status;

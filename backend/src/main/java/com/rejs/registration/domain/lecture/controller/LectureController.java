@@ -18,15 +18,15 @@ public class LectureController {
     private final LectureService lectureService;
 
     @PostMapping
-    public ResponseEntity<BaseResponse<LectrueDto>> createLecture(@RequestBody CreateLectureRequest request){
+    public ResponseEntity<LectrueDto> createLecture(@RequestBody CreateLectureRequest request){
         LectrueDto lectrueDto = lectureService.create(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(BaseResponse.of(HttpStatus.CREATED, lectrueDto));
+        return ResponseEntity.status(HttpStatus.CREATED).body(lectrueDto);
     }
 
     @GetMapping("/{id}")
-    public BaseResponse<LectrueDto> getById(@PathVariable("id") Long id){
+    public LectrueDto getById(@PathVariable("id") Long id){
         LectrueDto lectrueDto = lectureService.findById(id);
-        return BaseResponse.of(HttpStatus.OK, lectrueDto);
+        return lectrueDto;
     }
 
 

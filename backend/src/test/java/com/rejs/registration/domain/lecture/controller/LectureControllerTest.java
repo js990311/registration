@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rejs.registration.TestcontainersConfiguration;
 import com.rejs.registration.domain.entity.Lecture;
 import com.rejs.registration.domain.lecture.repository.LectureRepository;
+import com.rejs.registration.global.problem.ProblemCode;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -55,11 +56,9 @@ class LectureControllerTest {
         );
 
         result.andExpect(status().isCreated())
-                .andExpect(jsonPath("$.header.status").value(201))
-                .andExpect(jsonPath("$.header.message").value("Created"))
-                .andExpect(jsonPath("$.body.lectureId").isNumber())
-                .andExpect(jsonPath("$.body.name").value(name))
-                .andExpect(jsonPath("$.body.capacity").value(capacity))
+                .andExpect(jsonPath("$.lectureId").isNumber())
+                .andExpect(jsonPath("$.name").value(name))
+                .andExpect(jsonPath("$.capacity").value(capacity))
         ;
     }
 
@@ -80,11 +79,9 @@ class LectureControllerTest {
         );
 
         result.andExpect(status().isOk())
-                .andExpect(jsonPath("$.header.status").value(200))
-                .andExpect(jsonPath("$.header.message").value("OK"))
-                .andExpect(jsonPath("$.body.lectureId").value(lecture.getId()))
-                .andExpect(jsonPath("$.body.name").value(name))
-                .andExpect(jsonPath("$.body.capacity").value(capacity))
+                .andExpect(jsonPath("$.lectureId").value(lecture.getId()))
+                .andExpect(jsonPath("$.name").value(name))
+                .andExpect(jsonPath("$.capacity").value(capacity))
         ;
 
     }
@@ -98,9 +95,10 @@ class LectureControllerTest {
         );
 
         result.andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.header.status").value(404))
-                .andExpect(jsonPath("$.header.message").value("Lecture Not Found"))
-                .andExpect(jsonPath("$.body").isEmpty())
+                .andExpect(jsonPath("$.type").value(ProblemCode.LECTURE_NOT_FOUND.getType()))
+                .andExpect(jsonPath("$.title").value(ProblemCode.LECTURE_NOT_FOUND.getTitle()))
+                .andExpect(jsonPath("$.status").value(ProblemCode.LECTURE_NOT_FOUND.getStatus().value()))
+                .andExpect(jsonPath("$.instance").value("/lectures/0"))
         ;
 
     }
