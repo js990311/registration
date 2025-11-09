@@ -15,45 +15,45 @@ services:
       timeout: 5s
       retries: 10
       start_period: 10s # DB가 처음 시작할 시간을 줍니다.
-
-  spring-1:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "8082:8080"
-    environment:
-      DB_HOST: mariadb:3306
-      DB_NAME: lecture_db
-      DB_USERNAME: user
-      DB_PASSWORD: password
-      JWT_SECRET_KEY: Gl2Skb6wkkiX0cRUQptpZfm/JdE1ivSIboP2wrpqN7Q=
-    depends_on:
-      mariadb:
-        condition: service_healthy
-
-  spring-2:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    ports:
-      - "8083:8080"
-    environment:
-      DB_HOST: mariadb:3306
-      DB_NAME: lecture_db
-      DB_USERNAME: user
-      DB_PASSWORD: password
-      JWT_SECRET_KEY: Gl2Skb6wkkiX0cRUQptpZfm/JdE1ivSIboP2wrpqN7Q=
-    depends_on:
-      mariadb:
-        condition: service_healthy
-
-  nginx:
-    image: nginx
-    ports:
-      - "8081:80"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-    depends_on:
-      - spring-1
-      - spring-2
+#
+#  spring-1:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#    ports:
+#      - "8082:8080"
+#    environment:
+#      DB_HOST: mariadb:3306
+#      DB_NAME: lecture_db
+#      DB_USERNAME: user
+#      DB_PASSWORD: password
+#      JWT_SECRET_KEY: Gl2Skb6wkkiX0cRUQptpZfm/JdE1ivSIboP2wrpqN7Q=
+#    depends_on:
+#      mariadb:
+#        condition: service_healthy
+#
+#  spring-2:
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
+#    ports:
+#      - "8083:8080"
+#    environment:
+#      DB_HOST: mariadb:3306
+#      DB_NAME: lecture_db
+#      DB_USERNAME: user
+#      DB_PASSWORD: password
+#      JWT_SECRET_KEY: Gl2Skb6wkkiX0cRUQptpZfm/JdE1ivSIboP2wrpqN7Q=
+#    depends_on:
+#      mariadb:
+#        condition: service_healthy
+#
+#  nginx:
+#    image: nginx
+#    ports:
+#      - "8081:80"
+#    volumes:
+#      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+#    depends_on:
+#      - spring-1
+#      - spring-2

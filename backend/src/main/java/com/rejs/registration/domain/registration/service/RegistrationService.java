@@ -35,9 +35,6 @@ public class RegistrationService {
 
     @Transactional
     public CreateRegistrationResponse create(ClaimsDto claims, CreateRegistrationRequest request) {
-        if(!validateRegistarionPeriod(LocalDateTime.now())){
-            throw RegistrationBusinessException.notRegistrationPeriod();
-        }
         Lecture lecture = lectureRepository.findByIdWithLock(request.getLectureId()).orElseThrow(LectureBusinessException::lectureNotFound);
         Student student = studentRepository.findById(Long.parseLong(claims.getUsername())).orElseThrow(StudentBusinessException::studentNotFound);
 
