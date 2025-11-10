@@ -36,4 +36,13 @@ public class RegistrationBusinessException extends BusinessException {
     public static RegistrationBusinessException alreadyRegistration(String detail){
         return new RegistrationBusinessException(ProblemCode.ALREADY_REGISTRATION, detail);
     }
+
+
+    public static RegistrationBusinessException registrationNotFound(){
+        return new RegistrationBusinessException(ProblemCode.REGISTRATION_NOT_FOUND);
+    }
+
+    public static RegistrationBusinessException registrationNotFound(String detail){
+        return new RegistrationBusinessException(ProblemCode.REGISTRATION_NOT_FOUND, detail);
+    }
 }

@@ -18,6 +18,7 @@ public enum ProblemCode {
     LECTURE_ALREADY_FULL("LECTURE_ALREADY_FULL", "해당 강의의 인원이 초과되었습니다.", HttpStatus.CONFLICT),
     ALREADY_REGISTRATION("ALREADY_REGISTRATION", "이미 수강신청한 강의입니다.", HttpStatus.CONFLICT),
     NOT_REGISTRATION_PERIOD("NOT_REGISTRATION_PERIOD", "수강신청 기한이 아닙니다", HttpStatus.FORBIDDEN),
+    REGISTRATION_NOT_FOUND("REGISTRATION_NOT_FOUND", "존재하지 않는 수강신청 내역입니다", HttpStatus.NOT_FOUND),
     // 서버 에러
     INTERNAL_SERVER_ERROR("INTERNAL_SERVER_ERROR", "알 수 없는 서버 문제가 발생했습니다", HttpStatus.INTERNAL_SERVER_ERROR)
     ;

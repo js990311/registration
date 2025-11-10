@@ -16,6 +16,7 @@ import com.rejs.registration.global.problem.ProblemCode;
 import com.rejs.token_starter.token.JwtUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -30,8 +31,7 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -72,6 +72,8 @@ class RegistrationControllerTest {
     private String student2Token;
     private String student3Token;
 
+    private Long registrationId;
+
     @BeforeEach
     void setup(){
         Lecture lecture = new Lecture(lectureName, capacity);
@@ -96,6 +98,12 @@ class RegistrationControllerTest {
         LocalDateTime start = LocalDateTime.now().minusDays(1);
         LocalDateTime end = start.plusDays(7);
         periodRepository.save(new RegistrationPeriod(start, end));
+        Lecture lecture2 = new Lecture(lectureName, capacity);
+        lecture2 = lectureRepository.save(lecture2);
+
+        Registration registration = new Registration(student1, lecture2);
+        registrationId = registrationRepository.save(registration).getId();
+
     }
 
     @AfterEach
@@ -229,5 +237,42 @@ class RegistrationControllerTest {
                 .andExpect(jsonPath("$.instance").value("/registrations"))
         ;
     }
+
+    @Test
+    @DisplayName("수강신청 취소")
+    void deleteRegistration() throws Exception{
+        ResultActions result = mockMvc.perform(delete("/registrations/{id}", registrationId)
+                .header("Authorization", "Bearer " + student1Token)
+        );
+        result.andExpect(status().isNoContent());
+    }
+
+    @Test
+    @DisplayName("인증 실패")
+    void deleteRegistration401() throws Exception{
+        ResultActions result = mockMvc.perform(delete("/registrations/{id}", registrationId)
+                .header("Authorization", "Bearer " + "")
+        );
+        result.andExpect(status().isUnauthorized());
+    }
+
+    @Test
+    @DisplayName("다른 사람의 수강신청 취소 시도")
+    void deleteRegistration403() throws Exception{
+        ResultActions result = mockMvc.perform(delete("/registrations/{id}", registrationId)
+                .header("Authorization", "Bearer " + student2Token)
+        );
+        result.andExpect(status().isForbidden());
+    }
+
+    @Test
+    @DisplayName("존재하지 않는 수강신청 내역")
+    void deleteRegistration404() throws Exception{
+        ResultActions result = mockMvc.perform(delete("/registrations/{id}", 0)
+                .header("Authorization", "Bearer " + student1Token)
+        );
+        result.andExpect(status().isNotFound());
+    }
+
 
 }

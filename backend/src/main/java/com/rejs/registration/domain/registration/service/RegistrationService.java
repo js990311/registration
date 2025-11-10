@@ -13,10 +13,13 @@ import com.rejs.registration.domain.registration.repository.RegistrationPeriodRe
 import com.rejs.registration.domain.registration.repository.RegistrationRepository;
 import com.rejs.registration.domain.student.exception.StudentBusinessException;
 import com.rejs.registration.domain.student.repository.StudentRepository;
+import com.rejs.registration.global.exception.BusinessException;
 import com.rejs.registration.global.exception.GlobalException;
 import com.rejs.registration.global.exception.NotFoundException;
+import com.rejs.registration.global.problem.ProblemCode;
 import com.rejs.token_starter.token.ClaimsDto;
 import lombok.RequiredArgsConstructor;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -38,19 +41,19 @@ public class RegistrationService {
         Lecture lecture = lectureRepository.findByIdWithLock(request.getLectureId()).orElseThrow(LectureBusinessException::lectureNotFound);
         Student student = studentRepository.findById(Long.parseLong(claims.getUsername())).orElseThrow(StudentBusinessException::studentNotFound);
 
-        // 중복 신청여부 확인
         if(registrationRepository.isAlreadyRegistered(lecture.getId(), student.getId())){
             throw RegistrationBusinessException.alreadyRegistration();
         }
 
         // 강의가 여전히 신청가능한지 확인
-        if(!lecture.hasCapacity()){
-            throw RegistrationBusinessException.lectureAlreadyFull();
+        Long studentCount = registrationRepository.countByLectureId(lecture.getId());
+        if(studentCount >= lecture.getCapacity()){
+            throw RegistrationBusinessException.lectureAlreadyFull("현 수강인원 : " + studentCount);
         }
 
-        // registration 생성 -> 이때 lecture entity의 increaseStudent를 Registration의 생성자 내에서 호출
         Registration registration = new Registration(student, lecture);
         registration = registrationRepository.save(registration);
+
         return CreateRegistrationResponse.from(registration);
     }
 
@@ -58,5 +61,14 @@ public class RegistrationService {
         List<RegistrationPeriod> periods = periodRepository.findByPeroid(now);
         // 나중에 1학년만 가능 등등 옵션 추가가능할 수 있도록
         return !periods.isEmpty();
+    }
+
+    @Transactional
+    public void delete(ClaimsDto claims, Long id) {
+        Registration registration = registrationRepository.findByIdWithLock(id).orElseThrow(RegistrationBusinessException::registrationNotFound);
+        if(!registration.getStudentId().toString().equals(claims.getUsername())){
+            throw new BusinessException(ProblemCode.ACCESS_DENIED, "본인의 수강신청내역만 취소할 수 있습니다");
+        }
+        registrationRepository.delete(registration);
     }
 }

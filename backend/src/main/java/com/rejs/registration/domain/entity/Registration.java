@@ -86,6 +86,5 @@ public class Registration {
     public Registration(Student student, Lecture lecture) {
         this.student = student;
         this.lecture = lecture;
-        this.lecture.increaseStudent();
     }
 }

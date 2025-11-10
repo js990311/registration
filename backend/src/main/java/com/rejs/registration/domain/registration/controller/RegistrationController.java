@@ -22,11 +22,19 @@ public class RegistrationController {
 
     @PostMapping
     public ResponseEntity<CreateRegistrationResponse> createRegistration(@RequestBody CreateRegistrationRequest request, @TokenClaim ClaimsDto claims){
-        // 수강신청 기간 확인 -> 컨트롤러나 필터로 옮기는 것이 좋아보임
         if(!registrationService.validateRegistarionPeriod(LocalDateTime.now())){
             throw RegistrationBusinessException.notRegistrationPeriod();
         }
         CreateRegistrationResponse response = registrationService.create(claims, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @DeleteMapping("/{registrationId}")
+    public ResponseEntity<Void> deleteRegistration(@PathVariable("registrationId") Long id, @TokenClaim ClaimsDto claims){
+        if(!registrationService.validateRegistarionPeriod(LocalDateTime.now())){
+            throw RegistrationBusinessException.notRegistrationPeriod();
+        }
+        registrationService.delete(claims, id);
+        return ResponseEntity.noContent().build();
     }
 }
