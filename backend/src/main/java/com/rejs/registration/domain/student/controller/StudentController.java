@@ -1,11 +1,8 @@
 package com.rejs.registration.domain.student.controller;
 
-import com.rejs.registration.domain.lecture.dto.LectrueDto;
-import com.rejs.registration.domain.lecture.dto.request.CreateLectureRequest;
 import com.rejs.registration.domain.student.dto.StudentDto;
 import com.rejs.registration.domain.student.dto.request.CreateStudentRequest;
 import com.rejs.registration.domain.student.service.StudentService;
-import com.rejs.registration.global.response.BaseResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

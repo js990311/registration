@@ -8,6 +8,7 @@ import com.rejs.registration.domain.lecture.exception.LectureBusinessException;
 import com.rejs.registration.domain.lecture.repository.LectureRepository;
 import com.rejs.registration.domain.registration.dto.reqeust.CreateRegistrationRequest;
 import com.rejs.registration.domain.registration.dto.response.CreateRegistrationResponse;
+import com.rejs.registration.domain.registration.dto.response.RegistrationLectureDto;
 import com.rejs.registration.domain.registration.exception.RegistrationBusinessException;
 import com.rejs.registration.domain.registration.repository.RegistrationPeriodRepository;
 import com.rejs.registration.domain.registration.repository.RegistrationRepository;
@@ -17,9 +18,13 @@ import com.rejs.registration.global.exception.BusinessException;
 import com.rejs.registration.global.exception.GlobalException;
 import com.rejs.registration.global.exception.NotFoundException;
 import com.rejs.registration.global.problem.ProblemCode;
+import com.rejs.registration.global.response.PageResponse;
 import com.rejs.token_starter.token.ClaimsDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -70,5 +75,11 @@ public class RegistrationService {
             throw new BusinessException(ProblemCode.ACCESS_DENIED, "본인의 수강신청내역만 취소할 수 있습니다");
         }
         registrationRepository.delete(registration);
+    }
+
+
+    @Transactional(readOnly = true)
+    public Page<RegistrationLectureDto> findByStudentId(ClaimsDto claims, Pageable pageable) {
+        return registrationRepository.findByStudentId(Long.valueOf(claims.getUsername()), pageable);
     }
 }

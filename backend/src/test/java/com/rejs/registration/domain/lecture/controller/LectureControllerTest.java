@@ -5,6 +5,7 @@ import com.rejs.registration.TestcontainersConfiguration;
 import com.rejs.registration.domain.entity.Lecture;
 import com.rejs.registration.domain.lecture.repository.LectureRepository;
 import com.rejs.registration.global.problem.ProblemCode;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -40,6 +41,11 @@ class LectureControllerTest {
 
     String name = "동시성";
     Integer capacity = 30;
+
+    @AfterEach
+    void clear(){
+        lectureRepository.deleteAll();
+    }
 
     @Test
     void createLecture() throws Exception{
@@ -101,6 +107,46 @@ class LectureControllerTest {
                 .andExpect(jsonPath("$.instance").value("/lectures/0"))
         ;
 
+    }
+
+        @Test
+    void readLecturePages() throws Exception{
+        int lectureSize = 45;
+        for(int i=1;i<=lectureSize;i++){
+            Lecture lecture = new Lecture("이름" + i, 30);
+            lectureRepository.save(lecture);
+        }
+
+        int pageNumber = 1;
+        int pageSize = 20;
+
+        ResultActions result = mockMvc.perform(get("/lectures")
+                .queryParam("size", String.valueOf(pageSize))
+                .queryParam("page", String.valueOf(pageNumber))
+        );
+
+        result
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.data").isArray())
+                .andExpect(jsonPath("$.data[0].lectureId").isNumber())
+                .andExpect(jsonPath("$.data[0].name").isString())
+                .andExpect(jsonPath("$.data[0].capacity").isNumber())
+
+                .andExpect(jsonPath("$.count").value(pageSize))
+                .andExpect(jsonPath("$.count").isNumber())
+
+                .andExpect(jsonPath("$.totalElements").value(lectureSize))
+                .andExpect(jsonPath("$.totalElements").isNumber())
+
+                .andExpect(jsonPath("$.pageNumber").value(pageNumber))
+                .andExpect(jsonPath("$.pageNumber").isNumber())
+
+                .andExpect(jsonPath("$.pageSize").value(pageSize))
+                .andExpect(jsonPath("$.pageSize").isNumber())
+
+                .andExpect(jsonPath("$.hasNextPage").isBoolean())
+                .andExpect(jsonPath("$.hasNextPage").value(true))
+        ;
     }
 
 }
