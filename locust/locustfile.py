@@ -13,7 +13,7 @@ def on_start(environment, **kwargs):
         response = requests.post(
             environment.host + "/lectures", json={"name": "test_lecture", "capacity" : 30}
         )
-        Student.lectureId = response.json()["body"]["lectureId"]
+        Student.lectureId = response.json()["lectureId"]
         logging.info(f"Lecture생성됨 {Student.lectureId}")
     except Exception as ex: 
         logging.warning(ex)
@@ -50,15 +50,15 @@ class Student(HttpUser):
         ) as response: 
             if response.status_code == 201:
                 data = response.json()
-                if 'body' in data and data['body'] is not None and 'accessToken' in data['body']:
-                    self.accessToken = data['body']['accessToken']
+                if data is not None and 'accessToken' in data:
+                    self.accessToken = data['accessToken']
                     response.success()
                 else:
                     data = response.json()
-                    response.failure(f'[No Token] Status: {data['header']['status']} code : {data['header']['message']}')
+                    response.failure(f'[No Token] Type: {data['type']} detail : {data['detail']}')
             else: 
                 data = response.json()
-                response.failure(f'[Fail] Status: {data['header']['status']} code : {data['header']['message']}')
+                response.failure(f'[Fail] Type: {data['type']} detail : {data['detail']}')
 
     @task
     def regist(self):
@@ -81,16 +81,16 @@ class Student(HttpUser):
                 self.stop() # 등록 성공시 중단
             elif response.status_code == 401: # 인증실패
                 data = response.json()  
-                response.failure(f'[Authentication Fail]  Status: {data['header']['status']} code : {data['header']['message']}')
+                response.failure(f'[Authentication Fail]  Type: {data['type']} detail : {data['detail']}')
             elif response.status_code == 409: # 꽉참
                 data = response.json()  
-                response.failure(f'[Lectuer is Full]  Status: {data['header']['status']} code : {data['header']['message']}')
+                response.failure(f'[Lectuer is Full]  Type: {data['type']} detail : {data['detail']}')
                 self.retry+=1
                 if self.retry >= 3:
                     self.stop() # 꽉차면 중단 
             else: 
                 data = response.json()
-                response.failure(f'[Fail] Status: {data['header']['status']} code : {data['header']['message']}')
+                response.failure(f'[Fail] Type: {data['type']} detail : {data['detail']}')
 
 class RegistrationShape(LoadTestShape):
     spike_max_users = 500 # 수강신청 시점의 최대 사용자수 
