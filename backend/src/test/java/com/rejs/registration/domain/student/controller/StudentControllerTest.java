@@ -1,45 +1,30 @@
 package com.rejs.registration.domain.student.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.rejs.registration.TestcontainersConfiguration;
+import com.epages.restdocs.apispec.HeaderDescriptorWithType;
+import com.rejs.registration.AbstractControllerTest;
 import com.rejs.registration.domain.entity.Student;
 import com.rejs.registration.domain.student.repository.StudentRepository;
 import com.rejs.registration.global.problem.ProblemCode;
-import com.rejs.token_starter.token.ClaimsDto;
 import com.rejs.token_starter.token.JwtUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@Import(TestcontainersConfiguration.class)
-@ActiveProfiles("test")
-@AutoConfigureMockMvc
-@SpringBootTest
-class StudentControllerTest {
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
+class StudentControllerTest extends AbstractControllerTest {
 
     @Autowired
     private StudentRepository studentRepository;
@@ -58,27 +43,6 @@ class StudentControllerTest {
         student1 = studentRepository.save(student1);
         studentToken = jwtUtils.generateToken(student1.getId().toString(), "ROLE_USER").getAccessToken();
 
-    }
-
-    @Disabled
-    @Test
-    void createStudent() throws Exception{
-        Map<String, Object> request = Map.of(
-                "name", name
-        );
-
-        ResultActions result = mockMvc.perform(
-                post("/students")
-                        .header("Authorization","Bearer " + studentToken)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-                        .content(objectMapper.writeValueAsString(request))
-        );
-
-        result.andExpect(status().isCreated())
-                .andExpect(jsonPath("$.studentId").isNumber())
-                .andExpect(jsonPath("$.name").value(name))
-        ;
     }
 
     @Test
@@ -102,6 +66,18 @@ class StudentControllerTest {
                 .andExpect(jsonPath("$.name").value(name))
         ;
 
+        result.andDo(
+                document((builder)->builder
+                        .pathParameters(
+                                parameterWithName("id").description("조회할 학생의 id")
+                        )
+                        .responseFields(
+                                fieldWithPath("studentId").description("학생의 고유번호").type(JsonFieldType.NUMBER),
+                                fieldWithPath("name").description("등록된 학생의 이름").type(JsonFieldType.STRING)
+                        )
+                )
+        );
+
     }
 
     @Test
@@ -120,6 +96,13 @@ class StudentControllerTest {
                 .andExpect(jsonPath("$.instance").value("/students/0"))
         ;
 
+        result.andDo(document(
+                (builder)->
+                        builder
+                                .requestHeaders(authorizationHeader())
+                                .responseSchema(problemSchema())
+                                .responseFields(problemFields())
+        ));
     }
 
 }

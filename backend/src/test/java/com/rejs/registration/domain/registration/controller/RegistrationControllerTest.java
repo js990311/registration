@@ -1,6 +1,7 @@
 package com.rejs.registration.domain.registration.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rejs.registration.AbstractControllerTest;
 import com.rejs.registration.TestcontainersConfiguration;
 import com.rejs.registration.domain.entity.Lecture;
 import com.rejs.registration.domain.entity.Registration;
@@ -23,6 +24,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -31,21 +33,13 @@ import java.time.LocalDateTime;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@Import(TestcontainersConfiguration.class)
-@ActiveProfiles("test")
-@AutoConfigureMockMvc
-@SpringBootTest
-class RegistrationControllerTest {
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
+class RegistrationControllerTest extends AbstractControllerTest {
     @Autowired
     private RegistrationRepository registrationRepository;
 
@@ -127,6 +121,20 @@ class RegistrationControllerTest {
                 .andExpect(jsonPath("$.lectureId").value(lectureId))
                 .andExpect(jsonPath("$.registrationId").isNumber())
         ;
+
+        result.andDo(
+                document(builder->builder
+                        .requestHeaders(authorizationHeader())
+                        .requestFields(
+                                fieldWithPath("lectureId").type(JsonFieldType.NUMBER).description("강의 ID")
+                        )
+                        .responseFields(
+                                fieldWithPath("lectureId").type(JsonFieldType.NUMBER).description("강의 ID"),
+                                fieldWithPath("registrationId").type(JsonFieldType.NUMBER).description("수강신청 내역 ID")
+                        )
+                )
+        );
+
     }
 
     @Test
@@ -144,6 +152,17 @@ class RegistrationControllerTest {
                 .andExpect(jsonPath("$.status").value(ProblemCode.INVALID_TOKEN.getStatus().value()))
                 .andExpect(jsonPath("$.instance").value("/registrations"))
         ;
+
+        result.andDo(
+                document(builder->builder
+                        .requestHeaders(authorizationHeader())
+                        .requestFields(
+                                fieldWithPath("lectureId").type(JsonFieldType.NUMBER).description("강의 ID")
+                        )
+                        .responseFields(problemFields())
+                )
+        );
+
     }
 
     @Test
@@ -161,6 +180,17 @@ class RegistrationControllerTest {
                 .andExpect(jsonPath("$.status").value(ProblemCode.LECTURE_NOT_FOUND.getStatus().value()))
                 .andExpect(jsonPath("$.instance").value("/registrations"))
         ;
+
+        result.andDo(
+                document(builder->builder
+                        .requestHeaders(authorizationHeader())
+                        .requestFields(
+                                fieldWithPath("lectureId").type(JsonFieldType.NUMBER).description("강의 ID")
+                        )
+                        .responseFields(problemFields())
+                )
+        );
+
     }
 
     @Test
@@ -189,6 +219,17 @@ class RegistrationControllerTest {
                 .andExpect(jsonPath("$.status").value(ProblemCode.LECTURE_ALREADY_FULL.getStatus().value()))
                 .andExpect(jsonPath("$.instance").value("/registrations"))
         ;
+
+        result.andDo(
+                document(builder->builder
+                        .requestHeaders(authorizationHeader())
+                        .requestFields(
+                                fieldWithPath("lectureId").type(JsonFieldType.NUMBER).description("강의 ID")
+                        )
+                        .responseFields(problemFields())
+                )
+        );
+
     }
 
     @Test
@@ -212,6 +253,17 @@ class RegistrationControllerTest {
                 .andExpect(jsonPath("$.status").value(ProblemCode.ALREADY_REGISTRATION.getStatus().value()))
                 .andExpect(jsonPath("$.instance").value("/registrations"))
         ;
+
+        result.andDo(
+                document(builder->builder
+                        .requestHeaders(authorizationHeader())
+                        .requestFields(
+                                fieldWithPath("lectureId").type(JsonFieldType.NUMBER).description("강의 ID")
+                        )
+                        .responseFields(problemFields())
+                )
+        );
+
     }
 
     @Test
@@ -236,6 +288,17 @@ class RegistrationControllerTest {
                 .andExpect(jsonPath("$.status").value(ProblemCode.NOT_REGISTRATION_PERIOD.getStatus().value()))
                 .andExpect(jsonPath("$.instance").value("/registrations"))
         ;
+
+        result.andDo(
+                document(builder->builder
+                        .requestHeaders(authorizationHeader())
+                        .requestFields(
+                                fieldWithPath("lectureId").type(JsonFieldType.NUMBER).description("강의 ID")
+                        )
+                        .responseFields(problemFields())
+                )
+        );
+
     }
 
     @Test
@@ -245,6 +308,15 @@ class RegistrationControllerTest {
                 .header("Authorization", "Bearer " + student1Token)
         );
         result.andExpect(status().isNoContent());
+
+        result.andDo(
+                document(builder->builder
+                        .pathParameters(
+                                parameterWithName("id").description("수강신청 ID")
+                        )
+                        .requestHeaders(authorizationHeader())
+                )
+        );
     }
 
     @Test
@@ -253,7 +325,23 @@ class RegistrationControllerTest {
         ResultActions result = mockMvc.perform(delete("/registrations/{id}", registrationId)
                 .header("Authorization", "Bearer " + "")
         );
-        result.andExpect(status().isUnauthorized());
+        result.andExpect(status().isUnauthorized())
+                .andExpect(jsonPath("$.type").value(ProblemCode.INVALID_TOKEN.getType()))
+                .andExpect(jsonPath("$.title").value(ProblemCode.INVALID_TOKEN.getTitle()))
+                .andExpect(jsonPath("$.status").value(ProblemCode.INVALID_TOKEN.getStatus().value()))
+                .andExpect(jsonPath("$.instance").value("/registrations/" + registrationId))
+        ;
+
+
+        result.andDo(
+                document(builder->builder
+                        .pathParameters(
+                                parameterWithName("id").description("수강신청 ID")
+                        )
+                        .requestHeaders(authorizationHeader())
+                        .responseFields(problemFields())
+                )
+        );
     }
 
     @Test
@@ -262,7 +350,23 @@ class RegistrationControllerTest {
         ResultActions result = mockMvc.perform(delete("/registrations/{id}", registrationId)
                 .header("Authorization", "Bearer " + student2Token)
         );
-        result.andExpect(status().isForbidden());
+        result.andExpect(status().isForbidden())
+                .andExpect(jsonPath("$.type").value(ProblemCode.ACCESS_DENIED.getType()))
+                .andExpect(jsonPath("$.title").value(ProblemCode.ACCESS_DENIED.getTitle()))
+                .andExpect(jsonPath("$.status").value(ProblemCode.ACCESS_DENIED.getStatus().value()))
+                .andExpect(jsonPath("$.instance").value("/registrations/" + registrationId))
+        ;
+
+
+        result.andDo(
+                document(builder->builder
+                        .pathParameters(
+                                parameterWithName("id").description("수강신청 ID")
+                        )
+                        .requestHeaders(authorizationHeader())
+                        .responseFields(problemFields())
+                )
+        );
     }
 
     @Test
@@ -271,7 +375,23 @@ class RegistrationControllerTest {
         ResultActions result = mockMvc.perform(delete("/registrations/{id}", 0)
                 .header("Authorization", "Bearer " + student1Token)
         );
-        result.andExpect(status().isNotFound());
+        result.andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.type").value(ProblemCode.REGISTRATION_NOT_FOUND.getType()))
+                .andExpect(jsonPath("$.title").value(ProblemCode.REGISTRATION_NOT_FOUND.getTitle()))
+                .andExpect(jsonPath("$.status").value(ProblemCode.REGISTRATION_NOT_FOUND.getStatus().value()))
+                .andExpect(jsonPath("$.instance").value("/registrations/0"))
+        ;
+
+
+        result.andDo(
+                document(builder->builder
+                        .pathParameters(
+                                parameterWithName("id").description("수강신청 ID")
+                        )
+                        .requestHeaders(authorizationHeader())
+                        .responseFields(problemFields())
+                )
+        );
     }
 
 

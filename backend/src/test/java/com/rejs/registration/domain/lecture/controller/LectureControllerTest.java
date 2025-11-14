@@ -1,6 +1,8 @@
 package com.rejs.registration.domain.lecture.controller;
 
+import com.epages.restdocs.apispec.FieldDescriptors;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rejs.registration.AbstractControllerTest;
 import com.rejs.registration.TestcontainersConfiguration;
 import com.rejs.registration.domain.entity.Lecture;
 import com.rejs.registration.domain.lecture.repository.LectureRepository;
@@ -12,6 +14,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.restdocs.payload.FieldDescriptor;
+import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -19,22 +23,14 @@ import org.springframework.test.web.servlet.ResultActions;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@Import(TestcontainersConfiguration.class)
-@ActiveProfiles("test")
-@AutoConfigureMockMvc
-@SpringBootTest
-class LectureControllerTest {
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
+class LectureControllerTest extends AbstractControllerTest {
 
     @Autowired
     private LectureRepository lectureRepository;
@@ -66,6 +62,16 @@ class LectureControllerTest {
                 .andExpect(jsonPath("$.name").value(name))
                 .andExpect(jsonPath("$.capacity").value(capacity))
         ;
+
+        result.andDo(
+                document(builder->builder
+                        .requestFields(
+                                fieldWithPath("name").description("강의이름").type(JsonFieldType.STRING),
+                                fieldWithPath("capacity").description("강의 최대 수강인원").type(JsonFieldType.NUMBER)
+                        )
+                        .responseFields(lectureFields())
+                )
+        );
     }
 
     @Test
@@ -89,6 +95,14 @@ class LectureControllerTest {
                 .andExpect(jsonPath("$.name").value(name))
                 .andExpect(jsonPath("$.capacity").value(capacity))
         ;
+        result.andDo(
+                document(builder->builder
+                        .pathParameters(
+                                parameterWithName("id").description("강의 번호")
+                        )
+                        .responseFields(lectureFields())
+                )
+        );
 
     }
 
@@ -106,6 +120,15 @@ class LectureControllerTest {
                 .andExpect(jsonPath("$.status").value(ProblemCode.LECTURE_NOT_FOUND.getStatus().value()))
                 .andExpect(jsonPath("$.instance").value("/lectures/0"))
         ;
+
+        result.andDo(
+                document(builder->builder
+                        .pathParameters(
+                                parameterWithName("id").description("강의 번호")
+                        )
+                        .responseFields(problemFields())
+            )
+        );
 
     }
 
@@ -147,6 +170,26 @@ class LectureControllerTest {
                 .andExpect(jsonPath("$.hasNextPage").isBoolean())
                 .andExpect(jsonPath("$.hasNextPage").value(true))
         ;
+
+        result.andDo(
+                document(builder->builder
+                        .queryParameters(
+                                parameterWithName("page").description("페이지 번호"),
+                                parameterWithName("size").description("페이지 크기")
+                        )
+                        .responseFields(paginationFields().andWithPrefix(
+                        "data[].", mergeFields(lectureFields()))
+                ))
+        );
+    }
+
+    // 문서화
+    public FieldDescriptors lectureFields(){
+        return new FieldDescriptors(
+            fieldWithPath("lectureId").description("강의 ID").type(JsonFieldType.NUMBER),
+            fieldWithPath("name").description("강의 이름").type(JsonFieldType.STRING),
+            fieldWithPath("capacity").description("수강인원").type(JsonFieldType.NUMBER)
+        );
     }
 
 }

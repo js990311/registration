@@ -1,6 +1,7 @@
 package com.rejs.registration.domain.registration.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rejs.registration.AbstractControllerTest;
 import com.rejs.registration.TestcontainersConfiguration;
 import com.rejs.registration.domain.entity.Lecture;
 import com.rejs.registration.domain.entity.Registration;
@@ -26,17 +27,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@Import(TestcontainersConfiguration.class)
-@ActiveProfiles("test")
-@AutoConfigureMockMvc
-@SpringBootTest
-class StudentRegistrationControllerTest {
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
+class StudentRegistrationControllerTest extends AbstractControllerTest {
     @Autowired
     private RegistrationRepository registrationRepository;
 

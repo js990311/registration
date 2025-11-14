@@ -1,6 +1,7 @@
 package com.rejs.registration.domain.registration.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rejs.registration.AbstractControllerTest;
 import com.rejs.registration.TestcontainersConfiguration;
 import com.rejs.registration.domain.registration.repository.RegistrationPeriodRepository;
 import org.junit.jupiter.api.Test;
@@ -9,6 +10,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
+import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -20,22 +22,13 @@ import java.time.temporal.ChronoUnit;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@Import(TestcontainersConfiguration.class)
-@ActiveProfiles("test")
-@AutoConfigureMockMvc
-@SpringBootTest
-class RegistrationPeriodControllerTest {
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private ObjectMapper objectMapper;
-
+class RegistrationPeriodControllerTest extends AbstractControllerTest {
     @Autowired
     private RegistrationPeriodRepository periodRepository;
 
@@ -59,5 +52,20 @@ class RegistrationPeriodControllerTest {
                 .andExpect(jsonPath("$.startTime").value(now.toString()))
                 .andExpect(jsonPath("$.endTime").value(now.plusDays(7).toString()))
         ;
+
+        result.andDo(
+                document((build) ->
+                        build
+                                .requestFields(
+                                        fieldWithPath("startTime").description("수강신청기간의 시작시간").type(JsonFieldType.STRING),
+                                        fieldWithPath("endTime").description("수강신청기간의 종료시간").type(JsonFieldType.STRING)
+                                )
+                                .responseFields(
+                                        fieldWithPath("periodId").description("수강신청기한의 고유제어번호").type(JsonFieldType.NUMBER),
+                                        fieldWithPath("startTime").description("수강신청기간의 시작시간").type(JsonFieldType.STRING),
+                                        fieldWithPath("endTime").description("수강신청기간의 종료시간").type(JsonFieldType.STRING)
+                                )
+                )
+        );
     }
 }
