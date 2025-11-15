@@ -2,7 +2,7 @@
 
 import {useState} from "react";
 import {useRouter} from "next/navigation";
-import {ProblemResponse} from "@/src/error/error";
+import {ProblemResponse} from "@/src/type/error/error";
 import useLoginStore from "@/src/stores/useLoginStore";
 
 export default function signUpPage() {

@@ -1,6 +1,6 @@
 import {NextRequest, NextResponse} from "next/server";
-import {ProblemResponse} from "@/src/error/error";
-import {Tokens} from "@/src/type/tokens";
+import {ProblemResponse} from "@/src/type/error/error";
+import {Tokens} from "@/src/type/auth/tokens";
 import {cookies} from "next/headers";
 
 export async function POST(req: NextRequest){
