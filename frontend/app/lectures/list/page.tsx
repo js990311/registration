@@ -1,6 +1,5 @@
 "use client"
 
-import Link from "next/link";
 import {useEffect, useState} from "react";
 import Lecture from "@/src/type/lecture/lecture";
 import LectureList from "@/src/components/lectures/LectureList";

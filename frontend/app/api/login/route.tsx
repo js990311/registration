@@ -23,13 +23,15 @@ export async function POST(req: NextRequest){
         }
 
         const tokens : Tokens = await apiResponse.json();
-        cookieStore.set('access_token', tokens.access_token, {
+        cookieStore.set('access_token', tokens.accessToken, {
             httpOnly: true
         });
 
-        cookieStore.set('refresh_token', tokens.refresh_token, {
+        cookieStore.set('refresh_token', tokens.refreshToken, {
             httpOnly: true
         });
+        console.log(tokens);
+
         return NextResponse.json({success: true}, {status: 200});
     }catch (error){
         return NextResponse.json({success: false}, {status: 500});

@@ -31,6 +31,7 @@ export async function POST(req: NextRequest){
         cookieStore.set('refresh_token', tokens.refresh_token, {
             httpOnly: true
         });
+
         return NextResponse.json({success: true}, {status: 201});
     }catch (error){
         return NextResponse.json({success: false}, {status: 500});
