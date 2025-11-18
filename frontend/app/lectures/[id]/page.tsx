@@ -1,6 +1,6 @@
 import Lecture from "@/src/type/lecture/lecture";
 
-const getLectureById = async (lectureId) => {
+const getLectureById = async (lectureId:string) => {
     const HOST = process.env.BACKEND_HOST ?? 'http://localhost:8080';
 
     const response = await fetch(`${HOST}/lectures/${lectureId}`, {

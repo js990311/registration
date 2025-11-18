@@ -1,10 +1,9 @@
 import {NextRequest, NextResponse} from "next/server";
 import {cookies} from "next/headers";
+import {getAccessToken} from "@/src/utils/tokenUtils";
 
 export async function GET(req : NextRequest){
-    const cookieStore = await cookies();
-
-    const access_token = cookieStore.get('access_token');
+    const access_token = await getAccessToken();
     if(access_token){
         return NextResponse.json({"success" : true}, {status: 200});
     }else {

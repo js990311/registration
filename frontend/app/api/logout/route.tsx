@@ -1,18 +1,7 @@
 import {NextRequest, NextResponse} from "next/server";
-import {cookies} from "next/headers";
+import {clearTokens} from "@/src/utils/tokenUtils";
 
 export async function POST(req: NextRequest) {
-    const cookieStore = await cookies();
-
-    cookieStore.set('access_token', '', {
-        httpOnly: true,
-        maxAge: 0
-    });
-
-    cookieStore.set('refresh_token', '', {
-        httpOnly: true,
-        maxAge: 0
-    });
-
+    await clearTokens();
     return new NextResponse(null, {status: 204});
 }

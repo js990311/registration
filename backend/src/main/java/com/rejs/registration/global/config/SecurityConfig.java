@@ -63,7 +63,7 @@ public class SecurityConfig {
                 .httpBasic(httpBasic -> httpBasic.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth->auth
-                        .requestMatchers("/login", "/signup", "/public/**", "/lectures/**").permitAll()
+                        .requestMatchers("/login", "/signup", "/public/**", "/lectures/**", "/refresh").permitAll()
                         .requestMatchers("/registrations/periods").permitAll()
                         .anyRequest().authenticated()
                 )

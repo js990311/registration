@@ -2,6 +2,7 @@ import {NextRequest, NextResponse} from "next/server";
 import {ProblemResponse} from "@/src/type/error/error";
 import {Tokens} from "@/src/type/auth/tokens";
 import {cookies} from "next/headers";
+import {setTokens} from "@/src/utils/tokenUtils";
 
 export async function POST(req: NextRequest){
     const HOST = process.env.BACKEND_HOST || 'http://localhost:8080';
@@ -23,15 +24,7 @@ export async function POST(req: NextRequest){
         }
 
         const tokens : Tokens = await apiResponse.json();
-
-        cookieStore.set('access_token', tokens.accessToken, {
-            httpOnly: true
-        });
-
-        cookieStore.set('refresh_token', tokens.refreshToken, {
-            httpOnly: true
-        });
-
+        setTokens(tokens);
         return NextResponse.json({success: true}, {status: 201});
     }catch (error){
         return NextResponse.json({success: false}, {status: 500});
