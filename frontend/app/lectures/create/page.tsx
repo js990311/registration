@@ -1,42 +1,26 @@
 "use client"
 
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {ProblemResponse} from "@/src/type/error/error";
 import Lecture from "@/src/type/lecture/lecture";
 import {useRouter} from "next/navigation";
+import {useCreateLecture} from "@/src/hooks/lectureHook";
+import toast from "react-hot-toast";
 
 export default function getLecturesPage(){
-    const [name, setName] = useState('');
-    const [capacity, setCapacity] = useState('');
-    const [error, setError] = useState("");
-    const router = useRouter();
+    const {
+        loading, error, name, setName, capacity, setCapacity, createLecture
+    } = useCreateLecture();
 
-    const onSubmit = async (e) => {
-        e.preventDefault();
-
-        const response = await fetch('/api/lectures', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                name: name,
-                capacity: capacity,
-            })
-        });
-
-        if(response.status === 201){
-            const lecture:Lecture = await response.json();
-            router.push(`/lectures/${lecture.lectureId}`);
-        }else {
-            const problem:ProblemResponse = await response.json();
-            setError(problem.detail);
+    useEffect(()=>{
+        if(error){
+            toast.error(error);
         }
-    }
+    },[error]);
 
     return (
         <div>
-            <form onSubmit={onSubmit}>
+            <form onSubmit={createLecture}>
                 <input type="text"
                        value={name}
                        onChange={(e) => setName(e.target.value)}
@@ -49,9 +33,6 @@ export default function getLecturesPage(){
                     생성하기
                 </button>
             </form>
-            <div>
-                {error && <p>{error}</p>}
-            </div>
         </div>
     );
 }

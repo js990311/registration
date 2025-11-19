@@ -1,42 +1,35 @@
 "use client"
 
-import {CreateRegistrationRequest} from "@/src/type/registration/registration";
-import {useState} from "react";
-import {ProblemResponse} from "@/src/type/error/error";
+import {useEnroll} from "@/src/hooks/registrationHook";
+import toast from "react-hot-toast";
+import {useEffect} from "react";
 
 type EnrollButtonPageProps = {
     lectureId: number
 }
 
 export default function EnrollButton({lectureId} : Readonly<EnrollButtonPageProps>) {
-    const [message, setMessage] = useState<string>();
+    const {
+        error, success, loading,
+        onEnroll
+    } = useEnroll();
 
-    const onEnroll =  async () => {
-        const request: CreateRegistrationRequest = {
-            lectureId: lectureId,
-        };
-
-        const response = await fetch(`/api/registrations`, {
-            method: "POST",
-            body: JSON.stringify(request)
-        });
-
-        if(response.status === 201) {
-            setMessage('success');
-        }else{
-            const problem : ProblemResponse = await response.json();
-            setMessage(problem.detail);
+    useEffect(() => {
+        if(!success && error) {
+            toast.error(error);
+        }else if(success){
+            toast.success('수강 신청 성공');
         }
-    }
+    }, [success, loading]);
 
     return (
         <div>
-            <button onClick={onEnroll}>
-                수강신청
+            <button
+                onClick={() => onEnroll(lectureId)}
+                disabled={loading}
+            >
+                {loading ? '신청중' : '수강신청'}
             </button>
-            <div>
-                {message}
-            </div>
         </div>
     )
 }

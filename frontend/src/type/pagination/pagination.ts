@@ -2,6 +2,7 @@ export interface Pagination<T> {
     data: T[];
     count: number;
     totalElements: number;
+    totalPage: number;
     pageNumber: number;
     pageSize: number;
     hasNextPage: boolean;
