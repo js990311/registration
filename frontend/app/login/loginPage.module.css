@@ -1,0 +1,7 @@
+.loginButton{
+    text-align: center;
+    width: 100%;
+    border-radius: 0;
+    color: var(--brand-50);
+    background-color: var(--brand-500);
+}

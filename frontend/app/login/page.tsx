@@ -1,11 +1,16 @@
 "use client"
 
+import styles from './loginPage.module.css'
 import {useState} from "react";
 import {useRouter} from "next/navigation";
 import {ProblemResponse} from "@/src/type/error/error";
 import useLoginStore from "@/src/stores/useLoginStore";
+import {Card} from "@/src/components/Card/Card";
+import {Button} from "@/src/components/button/Button";
+import {FloatingLabelInput} from "@/src/components/Input/FloatingLabelInput";
+import toast from "react-hot-toast";
 
-export default function signUpPage() {
+export default function LoginPage() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
@@ -39,7 +44,7 @@ export default function signUpPage() {
 
         if(resp.status !== 200){
             const json:{success:boolean, problem: ProblemResponse} = await resp.json();
-            setError(json.problem.detail);
+            toast.error(json.problem.detail);
         }else{
             login();
             router.push("/");
@@ -47,47 +52,51 @@ export default function signUpPage() {
     }
 
     return (
-        <div>
-            <form onSubmit={onSubmit}>
-                <input
-                    type="text"
-                    value={username}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        setUsername(e.target.value);
-                    }}
-                />
-                <input
-                    type="password"
-                    value={password}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        setPassword(e.target.value);
-                    }}
-                />
-                <button type={"submit"}>
+        <div className={"flex justify-center align-middle p-[3rem] w-full"}>
+            <Card>
+                <h2 className={"text-center text-lg font-bold text-xl mb-2"}>
                     로그인
-                </button>
-            </form>
-            <div>
-                <button
-                    onClick={() => {
-                        router.push("/signup");
-                    }}
-                >
-                    회원가입하기
-                </button>
-                <button>
-                    비밀번호찾기
-                </button>
-            </div>
-            {
-                error !== '' && (
+                </h2>
+                <form onSubmit={onSubmit}>
                     <div>
-                        <p>
-                            {error}
-                        </p>
+                        <div>
+                            <div>
+                                <FloatingLabelInput
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
+                                    name="username"
+                                    label={"아이디"}
+                                />
+                            </div>
+                            <div>
+                                <FloatingLabelInput
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    name="password"
+                                    label={"비밀번호"}
+                                />
+                            </div>
+                        </div>
+                        <div>
+                            <Button type={"submit"} className={styles.loginButton}>
+                                로그인
+                            </Button>
+                        </div>
                     </div>
-                )
-            }
+                </form>
+                <div>
+                    <Button
+                        onClick={() => {
+                            router.push("/signup");
+                        }}
+                    >
+                        회원가입하기
+                    </Button>
+                    <Button>
+                        비밀번호찾기
+                    </Button>
+                </div>
+            </Card>
         </div>
     );
 }

@@ -4,6 +4,11 @@ import {useState} from "react";
 import {useRouter} from "next/navigation";
 import {ProblemResponse} from "@/src/type/error/error";
 import useLoginStore from "@/src/stores/useLoginStore";
+import {FloatingLabelInput} from "@/src/components/Input/FloatingLabelInput";
+import {Button} from "@/src/components/button/Button";
+import styles from "@/app/login/loginPage.module.css";
+import {Card} from "@/src/components/Card/Card";
+import toast from "react-hot-toast";
 
 export default function signUpPage() {
     const [username, setUsername] = useState("");
@@ -38,7 +43,7 @@ export default function signUpPage() {
 
         if(resp.status !== 201){
             const json:{success:boolean, problem: ProblemResponse} = await resp.json();
-            setError(json.problem.detail);
+            toast.error(json.problem.detail);
         }else{
             login();
             router.push("/");
@@ -46,31 +51,39 @@ export default function signUpPage() {
     }
 
     return (
-        <div>
-            <form onSubmit={onSubmit}>
-                <input
-                    type="text"
-                    value={username}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        setUsername(e.target.value);
-                    }}
-                />
-                <input
-                    type="password"
-                    value={password}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                        setPassword(e.target.value);
-                    }}
-                />
-                <button type={"submit"}>
+        <div className={"flex justify-center align-middle p-[3rem] w-full"}>
+            <Card>
+                <h2 className={"text-center text-lg font-bold text-xl mb-2"}>
                     회원가입
-                </button>
-            </form>
-            <div>
-                <p>
-                    {error}
-                </p>
-            </div>
+                </h2>
+                <form onSubmit={onSubmit}>
+                    <div>
+                        <div>
+                            <div>
+                                <FloatingLabelInput
+                                    value={username}
+                                    onChange={(e) => setUsername(e.target.value)}
+                                    name="username"
+                                    label={"아이디"}
+                                />
+                            </div>
+                            <div>
+                                <FloatingLabelInput
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    name="password"
+                                    label={"비밀번호"}
+                                />
+                            </div>
+                        </div>
+                        <div>
+                            <Button type={"submit"} className={styles.loginButton}>
+                                로그인
+                            </Button>
+                        </div>
+                    </div>
+                </form>
+            </Card>
         </div>
     );
 }
