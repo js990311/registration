@@ -2,6 +2,9 @@ import {useEffect, useState} from "react";
 import {ProblemResponse} from "@/src/type/error/error";
 import {useUnenroll} from "@/src/hooks/registrationHook";
 import toast from "react-hot-toast";
+import {Button} from "@/src/components/button/Button";
+import clsx from "clsx";
+import styles from "./UnenrollButton.module.css"
 
 type UnenrollButtonPageProps = {
     registrationId: number,
@@ -25,9 +28,11 @@ export default function UnenrollButton({registrationId, onUnenroll}: Readonly<Un
 
     return (
         <div>
-            <button onClick={()=>fetchUnenroll(registrationId)}>
+            <Button
+                className={clsx(styles.unenrollButton)}
+                onClick={()=>fetchUnenroll(registrationId)}>
                 수강 취소
-            </button>
+            </Button>
         </div>
     )
 }

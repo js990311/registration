@@ -1,0 +1,9 @@
+.enrollButton {
+    color: #fff;
+    background-color: var(--gray-500);
+}
+
+.enrollButton:hover {
+    background-color: var(--brand-500);
+}
+

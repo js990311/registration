@@ -1,0 +1,12 @@
+.unenrollButton{
+    color: #fff;
+    width: 100%;
+    padding: 1rem 0;
+    background-color: var(--accent-400);
+}
+
+.unenrollButton:hover{
+    color: #fff;
+    background-color: var(--accent-700);
+}
+

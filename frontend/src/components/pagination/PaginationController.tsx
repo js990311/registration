@@ -1,11 +1,43 @@
 "use client"
 
+import styles from './pagination.module.css'
 import {Pagination} from "@/src/type/pagination/pagination";
 import Link from "next/link";
+import clsx from "clsx";
+import {Button} from "@/src/components/button/Button";
+import { MdOutlineKeyboardDoubleArrowLeft, MdOutlineKeyboardDoubleArrowRight, MdOutlineKeyboardArrowLeft, MdOutlineKeyboardArrowRight  } from "react-icons/md";
+import { HiDotsHorizontal } from "react-icons/hi";
+import {useState} from "react";
 
 type PaginationControllerProps = {
     pagination : Pagination<any>,
     onHandlePage: (page : number, size: number) => void,
+}
+
+const PaginationPageInput = ({totalPage} : { totalPage:number }) => {
+    const [isOpen, setIsOpen] = useState<boolean>(false);
+    return (
+        <li className={clsx(styles.paginationPageInputContainer, styles.paginationButton, {
+            [styles.currentPage]: isOpen
+        })}>
+            <Button
+                onClick={() => {setIsOpen(!isOpen)}}
+            >
+                <HiDotsHorizontal />
+            </Button>
+            <div className={clsx(
+                styles.paginationPageInputDropout,
+                {
+                    [styles.dropdownOpen]: isOpen
+                }
+            )}
+            >
+                <input type="text" placeholder={`page : `}/>
+                <span>{totalPage}</span>
+                <Button>이동</Button>
+            </div>
+        </li>
+    )
 }
 
 export default function PaginationController({pagination, onHandlePage}: Readonly<PaginationControllerProps>) {
@@ -15,13 +47,11 @@ export default function PaginationController({pagination, onHandlePage}: Readonl
 
     const pages: number[] = Array.from({ length: maxPage - minPage + 1 }).map((_, i) => minPage + i);
 
-
-
     return (
-        <div>
+        <div className={clsx(styles.paginationContainer)}>
             <div>
-                size를 변경하는 input
                 <select
+                    className={clsx(styles.paginationSelect)}
                     name={"pagination-size"}
                     id="pagination-size"
                     value={pagination.pageSize}
@@ -41,37 +71,52 @@ export default function PaginationController({pagination, onHandlePage}: Readonl
                     </option>
                 </select>
             </div>
-            <ul>
+            <ul className={clsx(styles.paginationList)}>
                 <li>
-                    <button onClick={()=>onHandlePage(1,size)}>
-                        맨처음페이지
-                    </button>
+                    <Button
+                        className={styles.paginationButton}
+                        onClick={()=>onHandlePage(1,size)}>
+                        <MdOutlineKeyboardDoubleArrowLeft />
+                    </Button>
                 </li>
                 <li>
-                    <button onClick={()=>onHandlePage(Math.max(1, minPage-10),size)}>
-                        이전페이지
-                    </button>
+                    <Button
+                        className={styles.paginationButton}
+                        onClick={()=>onHandlePage(Math.max(1, minPage-10),size)}>
+                        <MdOutlineKeyboardArrowLeft />
+                    </Button>
                 </li>
                 {
                     pages.map((page: number) => (
                         <li
                             key={`page-remote-${page}`}
-                            className={`${page === pagination.pageNumber ? "current-page" : ""}`}>
-                            <button onClick={() => onHandlePage(page, size)}>
+                        >
+                            <Button
+                                className={clsx(styles.paginationButton, {
+                                    [styles.currentPage]: page === pagination.pageNumber
+                                })}
+                                onClick={() => onHandlePage(page, size)}>
                                 {page}
-                            </button>
+                            </Button>
                         </li>
                     ))
                 }
+                <PaginationPageInput
+                    totalPage={pagination.totalPage}
+                />
                 <li>
-                <button onClick={() => onHandlePage(Math.min(pagination.totalPage, maxPage+1), size)}>
-                        다음 페이지
-                    </button>
+                    <Button
+                        className={styles.paginationButton}
+                        onClick={() => onHandlePage(Math.min(pagination.totalPage, maxPage+1), size)}>
+                        <MdOutlineKeyboardArrowRight />
+                    </Button>
                 </li>
                 <li>
-                    <button onClick={()=>onHandlePage(pagination.totalPage,size)}>
-                        akwlakr vpdlwl
-                    </button>
+                    <Button
+                        className={styles.paginationButton}
+                        onClick={()=>onHandlePage(pagination.totalPage,size)}>
+                        <MdOutlineKeyboardDoubleArrowRight />
+                    </Button>
                 </li>
 
             </ul>

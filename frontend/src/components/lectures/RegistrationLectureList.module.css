@@ -1,0 +1,38 @@
+.registrationLectureList{
+    display: grid;
+    gap: 20px;
+    grid-template-columns: 1fr;
+    padding: 0 15px;
+    margin: 2rem auto 0;
+    max-width: 500px;
+}
+
+@media (min-width: 768px) {
+    .registrationLectureList {
+        grid-template-columns: repeat(2, 1fr);
+        max-width: 700px;
+    }
+}
+
+@media (min-width: 1440px) {
+    .registrationLectureList {
+        grid-template-columns: repeat(4, 1fr);
+        max-width: 1400px;
+    }
+}
+
+.registrationLectureList .registrationCard{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    width: 100%;
+    min-height: 40vh;
+}
+
+.lectureName{
+    font-weight: bold;
+    font-size: 2rem;
+    text-decoration: underline;
+    margin-bottom: 0.75rem;
+}
+

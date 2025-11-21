@@ -1,0 +1,68 @@
+.paginationContainer{
+    margin-top: 1rem;
+    display: flex;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+}
+
+.paginationList{
+    display: flex;
+    gap: 0.2rem;
+}
+
+.currentPage,
+.paginationButton:hover{
+    border-radius: 0.25rem;
+    border: 1px solid var(--gray-200);
+    background-color: var(--gray-100);
+}
+
+.paginationSelect{
+    border-radius: 0.25rem;
+    border: 1px solid var(--gray-200);
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: 0.5rem;
+}
+
+.paginationPageInputContainer{
+    position: relative;
+}
+
+.paginationPageInputDropout{
+    position: absolute;
+    top: 0;
+    transform: translate(-50%, -100%);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.2rem 0.75rem;
+    border: 1px solid var(--gray-200);
+    visibility: hidden;
+    white-space: nowrap;
+    border-radius: 0.5rem;
+}
+
+.dropdownOpen{
+    visibility: visible;
+    z-index: 12;
+    background-color: #fff;
+}
+
+.paginationPageInputDropout input{
+    width: 3.5rem;
+    border-radius: 0.25rem;
+    border: 1px solid var(--gray-200);
+    padding: 0 0.1rem;
+}
+
+.paginationPageInputDropout span{
+    padding: 0 0.5rem;
+    color: var(--gray-500);
+}
+
+.paginationPageInputDropout button{
+    background-color: var(--gray-100);
+}

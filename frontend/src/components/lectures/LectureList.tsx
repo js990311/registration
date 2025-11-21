@@ -1,7 +1,7 @@
 "use client"
 
 import Lecture from "@/src/type/lecture/lecture";
-import EnrollButton from "@/src/components/lectures/EnrollButton";
+import EnrollButton from "@/src/components/lectures/button/EnrollButton";
 
 export default function LectureList({lectures} : Readonly<{ lectures: Lecture[] }>) {
     return (

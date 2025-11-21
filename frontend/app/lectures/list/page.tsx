@@ -8,6 +8,7 @@ import {useLectureList} from "@/src/hooks/lectureHook";
 import PaginationController from "@/src/components/pagination/PaginationController";
 import {useRouter, useSearchParams} from "next/navigation";
 import toast from "react-hot-toast";
+import LectureTable from "@/src/components/lectures/LectureTable";
 
 export default function LecturesListPage(){
     const searchParams = useSearchParams();
@@ -28,7 +29,7 @@ export default function LecturesListPage(){
 
     return (
         <div>
-            <LectureList
+            <LectureTable
                 lectures={lectures}
             />
             <PaginationController
