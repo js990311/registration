@@ -56,6 +56,7 @@ class RegistrationControllerTest extends AbstractControllerTest {
     private JwtUtils jwtUtils;
 
     private Long lectureId = 1L;
+    private Long lecture2Id;
     private String lectureName = "동시성강의";
     private Integer capacity = 2;
     private Long student1Id;
@@ -94,10 +95,10 @@ class RegistrationControllerTest extends AbstractControllerTest {
         periodRepository.save(new RegistrationPeriod(start, end));
         Lecture lecture2 = new Lecture(lectureName, capacity);
         lecture2 = lectureRepository.save(lecture2);
+        lecture2Id = lecture2.getId();
 
         Registration registration = new Registration(student1, lecture2);
         registrationId = registrationRepository.save(registration).getId();
-
     }
 
     @AfterEach
@@ -303,16 +304,16 @@ class RegistrationControllerTest extends AbstractControllerTest {
 
     @Test
     @DisplayName("수강신청 취소")
-    void deleteRegistration() throws Exception{
-        ResultActions result = mockMvc.perform(delete("/registrations/{id}", registrationId)
+    void cancelRegistration() throws Exception{
+        ResultActions result = mockMvc.perform(delete("/registrations").queryParam("lectureId", String.valueOf(lecture2Id))
                 .header("Authorization", "Bearer " + student1Token)
         );
         result.andExpect(status().isNoContent());
 
         result.andDo(
                 document(builder->builder
-                        .pathParameters(
-                                parameterWithName("id").description("수강신청 ID")
+                        .queryParameters(
+                                parameterWithName("lectureId").description("강의 id")
                         )
                         .requestHeaders(authorizationHeader())
                 )
@@ -321,22 +322,22 @@ class RegistrationControllerTest extends AbstractControllerTest {
 
     @Test
     @DisplayName("인증 실패")
-    void deleteRegistration401() throws Exception{
-        ResultActions result = mockMvc.perform(delete("/registrations/{id}", registrationId)
+    void cancelRegistration401() throws Exception{
+        ResultActions result = mockMvc.perform(delete("/registrations").queryParam("lectureId", String.valueOf(lecture2Id))
                 .header("Authorization", "Bearer " + "")
         );
         result.andExpect(status().isUnauthorized())
                 .andExpect(jsonPath("$.type").value(ProblemCode.INVALID_TOKEN.getType()))
                 .andExpect(jsonPath("$.title").value(ProblemCode.INVALID_TOKEN.getTitle()))
                 .andExpect(jsonPath("$.status").value(ProblemCode.INVALID_TOKEN.getStatus().value()))
-                .andExpect(jsonPath("$.instance").value("/registrations/" + registrationId))
+                .andExpect(jsonPath("$.instance").value("/registrations"))
         ;
 
 
         result.andDo(
                 document(builder->builder
-                        .pathParameters(
-                                parameterWithName("id").description("수강신청 ID")
+                        .queryParameters(
+                                parameterWithName("lectureId").description("강의 id")
                         )
                         .requestHeaders(authorizationHeader())
                         .responseFields(problemFields())
@@ -346,22 +347,22 @@ class RegistrationControllerTest extends AbstractControllerTest {
 
     @Test
     @DisplayName("다른 사람의 수강신청 취소 시도")
-    void deleteRegistration403() throws Exception{
-        ResultActions result = mockMvc.perform(delete("/registrations/{id}", registrationId)
+    void cancelRegistration403() throws Exception{
+        ResultActions result = mockMvc.perform(delete("/registrations").queryParam("lectureId", String.valueOf(lecture2Id))
                 .header("Authorization", "Bearer " + student2Token)
         );
-        result.andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.type").value(ProblemCode.ACCESS_DENIED.getType()))
-                .andExpect(jsonPath("$.title").value(ProblemCode.ACCESS_DENIED.getTitle()))
-                .andExpect(jsonPath("$.status").value(ProblemCode.ACCESS_DENIED.getStatus().value()))
-                .andExpect(jsonPath("$.instance").value("/registrations/" + registrationId))
+        result.andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.type").value(ProblemCode.REGISTRATION_NOT_FOUND.getType()))
+                .andExpect(jsonPath("$.title").value(ProblemCode.REGISTRATION_NOT_FOUND.getTitle()))
+                .andExpect(jsonPath("$.status").value(ProblemCode.REGISTRATION_NOT_FOUND.getStatus().value()))
+                .andExpect(jsonPath("$.instance").value("/registrations"))
         ;
 
 
         result.andDo(
                 document(builder->builder
-                        .pathParameters(
-                                parameterWithName("id").description("수강신청 ID")
+                        .queryParameters(
+                                parameterWithName("lectureId").description("강의 id")
                         )
                         .requestHeaders(authorizationHeader())
                         .responseFields(problemFields())
@@ -371,22 +372,22 @@ class RegistrationControllerTest extends AbstractControllerTest {
 
     @Test
     @DisplayName("존재하지 않는 수강신청 내역")
-    void deleteRegistration404() throws Exception{
-        ResultActions result = mockMvc.perform(delete("/registrations/{id}", 0)
+    void cancelRegistration404() throws Exception{
+        ResultActions result = mockMvc.perform(delete("/registrations").queryParam("lectureId", String.valueOf(lectureId))
                 .header("Authorization", "Bearer " + student1Token)
         );
         result.andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.type").value(ProblemCode.REGISTRATION_NOT_FOUND.getType()))
                 .andExpect(jsonPath("$.title").value(ProblemCode.REGISTRATION_NOT_FOUND.getTitle()))
                 .andExpect(jsonPath("$.status").value(ProblemCode.REGISTRATION_NOT_FOUND.getStatus().value()))
-                .andExpect(jsonPath("$.instance").value("/registrations/0"))
+                .andExpect(jsonPath("$.instance").value("/registrations"))
         ;
 
 
         result.andDo(
                 document(builder->builder
-                        .pathParameters(
-                                parameterWithName("id").description("수강신청 ID")
+                        .queryParameters(
+                                parameterWithName("lectureId").description("강의 id")
                         )
                         .requestHeaders(authorizationHeader())
                         .responseFields(problemFields())

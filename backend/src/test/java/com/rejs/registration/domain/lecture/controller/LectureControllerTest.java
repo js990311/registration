@@ -188,7 +188,8 @@ class LectureControllerTest extends AbstractControllerTest {
         return new FieldDescriptors(
             fieldWithPath("lectureId").description("강의 ID").type(JsonFieldType.NUMBER),
             fieldWithPath("name").description("강의 이름").type(JsonFieldType.STRING),
-            fieldWithPath("capacity").description("수강인원").type(JsonFieldType.NUMBER)
+            fieldWithPath("capacity").description("수강 인원 정원").type(JsonFieldType.NUMBER),
+            fieldWithPath("studentCount").description("현재 수강 인원").type(JsonFieldType.NUMBER)
         );
     }
 

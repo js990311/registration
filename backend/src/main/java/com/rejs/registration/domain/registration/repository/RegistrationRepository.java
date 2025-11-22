@@ -1,6 +1,8 @@
 package com.rejs.registration.domain.registration.repository;
 
+import com.rejs.registration.domain.entity.Lecture;
 import com.rejs.registration.domain.entity.Registration;
+import com.rejs.registration.domain.entity.Student;
 import com.rejs.registration.domain.registration.dto.response.RegistrationLectureDto;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.domain.Page;
@@ -30,4 +32,6 @@ public interface RegistrationRepository extends JpaRepository<Registration, Long
         countQuery = "SELECT count(r) from Registration r where r.student.id = :studentId"
     )
     Page<RegistrationLectureDto> findByStudentId(@Param("studentId") Long studentId, Pageable pageable);
+
+    Optional<Registration> findByStudentAndLecture(Student student, Lecture lecture);
 }

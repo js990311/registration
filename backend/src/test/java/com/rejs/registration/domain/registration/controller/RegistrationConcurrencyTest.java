@@ -130,7 +130,7 @@ public class RegistrationConcurrencyTest {
                         error.incrementAndGet();
                     }
                 }catch (Exception ex){
-                    fail.incrementAndGet();
+                    error.incrementAndGet();
                 }finally {
                     endLatch.countDown();
                 }

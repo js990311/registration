@@ -15,7 +15,7 @@ export default function LectureTable({lectures} : Readonly<{ lectures: Lecture[]
                         강의명
                     </th>
                     <th>
-                        정원
+                        수강인원 / 정원
                     </th>
                 </tr>
             </thead>
@@ -24,6 +24,7 @@ export default function LectureTable({lectures} : Readonly<{ lectures: Lecture[]
                 <tr key={index}>
                     <td>
                         <EnrollButton
+                            disabled={lecture.studentCount >= lecture.capacity}
                             lectureId={lecture.lectureId}
                         />
                     </td>
@@ -33,7 +34,15 @@ export default function LectureTable({lectures} : Readonly<{ lectures: Lecture[]
                         </a>
                     </td>
                     <td>
-                        {lecture.capacity}
+                        <span>
+                            {lecture.studentCount}
+                        </span>
+                        <span>
+                            /
+                        </span>
+                        <span>
+                            {lecture.capacity}
+                        </span>
                     </td>
                 </tr>
             ))}

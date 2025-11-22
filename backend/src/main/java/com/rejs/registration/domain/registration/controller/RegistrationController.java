@@ -29,12 +29,12 @@ public class RegistrationController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @DeleteMapping("/{registrationId}")
-    public ResponseEntity<Void> deleteRegistration(@PathVariable("registrationId") Long id, @TokenClaim ClaimsDto claims){
+    @DeleteMapping
+    public ResponseEntity<Void> cancelRegistrationByLectureId(@RequestParam("lectureId") Long id, @TokenClaim ClaimsDto claims){
         if(!registrationService.validateRegistarionPeriod(LocalDateTime.now())){
             throw RegistrationBusinessException.notRegistrationPeriod();
         }
-        registrationService.delete(claims, id);
+        registrationService.cancel(claims, id);
         return ResponseEntity.noContent().build();
     }
 }

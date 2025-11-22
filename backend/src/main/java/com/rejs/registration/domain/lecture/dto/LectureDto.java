@@ -8,18 +8,21 @@ public class LectureDto {
     private Long lectureId;
     private String name;
     private Integer capacity;
+    private Integer studentCount;
 
-    public LectureDto(Long lectureId, String name, Integer capacity) {
+    public LectureDto(Long lectureId, String name, Integer capacity, Integer studentCount) {
         this.lectureId = lectureId;
         this.name = name;
         this.capacity = capacity;
+        this.studentCount = studentCount;
     }
 
     public static LectureDto from(Lecture lecture) {
         return new LectureDto(
                 lecture.getId(),
                 lecture.getName(),
-                lecture.getCapacity()
+                lecture.getCapacity(),
+                lecture.getStudentCount()
         );
     }
 }

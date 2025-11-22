@@ -51,14 +51,14 @@ public class RegistrationService {
         }
 
         // 강의가 여전히 신청가능한지 확인
-        Long studentCount = registrationRepository.countByLectureId(lecture.getId());
-        if(studentCount >= lecture.getCapacity()){
-            throw RegistrationBusinessException.lectureAlreadyFull("현 수강인원 : " + studentCount);
+//        Long studentCount = registrationRepository.countByLectureId(lecture.getId());
+        if(!lecture.hasCapacity()){
+            throw RegistrationBusinessException.lectureAlreadyFull("현 수강인원 : " + lecture.getStudentCount());
         }
 
         Registration registration = new Registration(student, lecture);
         registration = registrationRepository.save(registration);
-
+        lecture.increaseStudentCount();
         return CreateRegistrationResponse.from(registration);
     }
 
@@ -68,18 +68,17 @@ public class RegistrationService {
         return !periods.isEmpty();
     }
 
-    @Transactional
-    public void delete(ClaimsDto claims, Long id) {
-        Registration registration = registrationRepository.findByIdWithLock(id).orElseThrow(RegistrationBusinessException::registrationNotFound);
-        if(!registration.getStudentId().toString().equals(claims.getUsername())){
-            throw new BusinessException(ProblemCode.ACCESS_DENIED, "본인의 수강신청내역만 취소할 수 있습니다");
-        }
-        registrationRepository.delete(registration);
-    }
-
-
-    @Transactional(readOnly = true)
     public Page<RegistrationLectureDto> findByStudentId(ClaimsDto claims, Pageable pageable) {
         return registrationRepository.findByStudentId(Long.valueOf(claims.getUsername()), pageable);
+    }
+
+    @Transactional
+    public void cancel(ClaimsDto claims, Long id) {
+        Lecture lecture = lectureRepository.findByIdWithLock(id).orElseThrow(LectureBusinessException::lectureNotFound);
+        Student student = studentRepository.findById(Long.parseLong(claims.getUsername())).orElseThrow(StudentBusinessException::studentNotFound);
+        Registration registration = registrationRepository.findByStudentAndLecture(student, lecture).orElseThrow(RegistrationBusinessException::registrationNotFound);
+
+        lecture.decreaseStudentCount();
+        registrationRepository.delete(registration);
     }
 }
