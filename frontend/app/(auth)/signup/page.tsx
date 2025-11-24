@@ -6,7 +6,7 @@ import {ProblemResponse} from "@/src/type/error/error";
 import useLoginStore from "@/src/stores/useLoginStore";
 import {FloatingLabelInput} from "@/src/components/Input/FloatingLabelInput";
 import {Button} from "@/src/components/button/Button";
-import styles from "@/app/login/loginPage.module.css";
+import styles from "@/app/(auth)/login/loginPage.module.css";
 import {Card} from "@/src/components/Card/Card";
 import toast from "react-hot-toast";
 
