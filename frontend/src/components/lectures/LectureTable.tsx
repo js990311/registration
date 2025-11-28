@@ -15,6 +15,9 @@ export default function LectureTable({lectures} : Readonly<{ lectures: Lecture[]
                         강의명
                     </th>
                     <th>
+                        학점
+                    </th>
+                    <th>
                         수강인원 / 정원
                     </th>
                 </tr>
@@ -32,6 +35,11 @@ export default function LectureTable({lectures} : Readonly<{ lectures: Lecture[]
                         <a href={`${lecture.lectureId}`}>
                             {lecture.name}
                         </a>
+                    </td>
+                    <td>
+                        <span>
+                            {lecture.credit}
+                        </span>
                     </td>
                     <td>
                         <span>

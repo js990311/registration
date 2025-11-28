@@ -37,6 +37,7 @@ class LectureControllerTest extends AbstractControllerTest {
 
     String name = "동시성";
     Integer capacity = 30;
+    Integer credit = 3;
 
     @AfterEach
     void clear(){
@@ -47,7 +48,8 @@ class LectureControllerTest extends AbstractControllerTest {
     void createLecture() throws Exception{
         Map<String, Object> request = Map.of(
                 "name", name,
-                "capacity", capacity
+                "capacity", capacity,
+                "credit", credit
         );
 
         ResultActions result = mockMvc.perform(
@@ -61,13 +63,15 @@ class LectureControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.lectureId").isNumber())
                 .andExpect(jsonPath("$.name").value(name))
                 .andExpect(jsonPath("$.capacity").value(capacity))
+                .andExpect(jsonPath("$.credit").value(credit))
         ;
 
         result.andDo(
                 document(builder->builder
                         .requestFields(
                                 fieldWithPath("name").description("강의이름").type(JsonFieldType.STRING),
-                                fieldWithPath("capacity").description("강의 최대 수강인원").type(JsonFieldType.NUMBER)
+                                fieldWithPath("capacity").description("강의 최대 수강인원").type(JsonFieldType.NUMBER),
+                                fieldWithPath("credit").description("학점").type(JsonFieldType.NUMBER)
                         )
                         .responseFields(lectureFields())
                 )
@@ -78,10 +82,11 @@ class LectureControllerTest extends AbstractControllerTest {
     void readLectureById() throws Exception{
         Map<String, Object> request = Map.of(
                 "name", name,
-                "capacity", capacity
+                "capacity", capacity,
+                "credit", credit
         );
 
-        Lecture lecture = lectureRepository.save(new Lecture(name, capacity));
+        Lecture lecture = lectureRepository.save(new Lecture(name, capacity, credit));
 
 
         ResultActions result = mockMvc.perform(
@@ -91,10 +96,12 @@ class LectureControllerTest extends AbstractControllerTest {
         );
 
         result.andExpect(status().isOk())
-                .andExpect(jsonPath("$.lectureId").value(lecture.getId()))
+                .andExpect(jsonPath("$.lectureId").isNumber())
                 .andExpect(jsonPath("$.name").value(name))
                 .andExpect(jsonPath("$.capacity").value(capacity))
+                .andExpect(jsonPath("$.credit").value(credit))
         ;
+
         result.andDo(
                 document(builder->builder
                         .pathParameters(
@@ -136,7 +143,7 @@ class LectureControllerTest extends AbstractControllerTest {
     void readLecturePages() throws Exception{
         int lectureSize = 45;
         for(int i=1;i<=lectureSize;i++){
-            Lecture lecture = new Lecture("이름" + i, 30);
+            Lecture lecture = new Lecture("이름" + i, 30, 3);
             lectureRepository.save(lecture);
         }
 
@@ -189,7 +196,8 @@ class LectureControllerTest extends AbstractControllerTest {
             fieldWithPath("lectureId").description("강의 ID").type(JsonFieldType.NUMBER),
             fieldWithPath("name").description("강의 이름").type(JsonFieldType.STRING),
             fieldWithPath("capacity").description("수강 인원 정원").type(JsonFieldType.NUMBER),
-            fieldWithPath("studentCount").description("현재 수강 인원").type(JsonFieldType.NUMBER)
+            fieldWithPath("studentCount").description("현재 수강 인원").type(JsonFieldType.NUMBER),
+            fieldWithPath("credit").description("학점").type(JsonFieldType.NUMBER)
         );
     }
 

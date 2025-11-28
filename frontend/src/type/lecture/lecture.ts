@@ -3,6 +3,7 @@ type Lecture = {
     name: string;
     capacity: number;
     studentCount: number;
+    credit: number;
 }
 
 export default Lecture;

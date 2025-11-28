@@ -1,0 +1,55 @@
+.creditCard {
+    padding: 1.5rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 0.25rem 0.5rem rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto 2rem;
+    background-color: var(--brand-50); /* globals.css의 라이트 브랜드 컬러 활용 */
+}
+
+.cardTitle {
+    font-size: 1.25rem; /* text-xl */
+    font-weight: 700; /* font-bold */
+    margin-bottom: 1rem;
+    color: var(--brand-800);
+    border-bottom: 2px solid var(--brand-400);
+    padding-bottom: 0.5rem;
+}
+
+.creditLine {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.5rem 0;
+    /* 마지막 줄 제외하고 구분선 */
+    border-bottom: 1px solid var(--gray-200);
+}
+
+.creditLine:last-of-type {
+    border-bottom: none;
+    padding-top: 1rem;
+}
+
+.label {
+    color: var(--gray-600);
+    font-weight: 500;
+    min-width: 120px;
+}
+
+.value {
+    font-weight: 800; /* font-extrabold */
+    font-size: 1.125rem; /* text-lg */
+}
+
+.remainingCredit {
+    font-weight: 800;
+    font-size: 1.25rem; /* text-xl */
+}
+
+.statusPositive {
+    color: var(--success-600); /* 잔여 학점 > 0 (Green) */
+}
+
+.statusNegative {
+    color: var(--error-500); /* 잔여 학점 < 0 (Red) */
+}

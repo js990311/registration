@@ -12,7 +12,7 @@ import {Button} from "@/src/components/button/Button";
 
 export default function getLecturesPage(){
     const {
-        loading, error, name, setName, capacity, setCapacity, createLecture
+        loading, error, name, setName, capacity, setCapacity, createLecture, credit, setCredit
     } = useCreateLecture();
 
     useEffect(()=>{
@@ -40,6 +40,13 @@ export default function getLecturesPage(){
                         name="capacity"
                         label={"정원"}
                     />
+                    <FloatingLabelInput
+                        value={credit}
+                        onChange={(e) => setCredit(e.target.value)}
+                        name="credit"
+                        label={"학점"}
+                    />
+
                     <Button type="submit">
                         생성하기
                     </Button>

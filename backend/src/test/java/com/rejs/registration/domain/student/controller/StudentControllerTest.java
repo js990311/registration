@@ -33,47 +33,38 @@ class StudentControllerTest extends AbstractControllerTest {
     private JwtUtils jwtUtils;
 
     private String studentToken;
+    private Student student1;
 
     String name = "동시성";
-    String token = "Bearer token";
-
     @BeforeEach
     void setUp() throws Exception {
-        Student student1 = new Student("student1");
+        student1 = new Student("student1");
         student1 = studentRepository.save(student1);
         studentToken = jwtUtils.generateToken(student1.getId().toString(), "ROLE_USER").getAccessToken();
 
     }
 
     @Test
-    void readStudentById() throws Exception{
-        Map<String, Object> request = Map.of(
-                "name", name
-        );
-
-        Student student = studentRepository.save(new Student(name));
-
-
+    void readStudentMe() throws Exception{
         ResultActions result = mockMvc.perform(
-                get("/students/{id}", student.getId())
+                get("/students/me")
                         .header("Authorization","Bearer " + studentToken)
                         .contentType(MediaType.APPLICATION_JSON)
                         .accept(MediaType.APPLICATION_JSON)
         );
 
         result.andExpect(status().isOk())
-                .andExpect(jsonPath("$.studentId").value(student.getId()))
-                .andExpect(jsonPath("$.name").value(name))
+                .andExpect(jsonPath("$.studentId").value(student1.getId()))
+                .andExpect(jsonPath("$.name").value(student1.getName()))
+                .andExpect(jsonPath("$.creditLimit").value(student1.getCreditLimit()))
         ;
 
         result.andDo(
                 document((builder)->builder
-                        .pathParameters(
-                                parameterWithName("id").description("조회할 학생의 id")
-                        )
                         .responseFields(
                                 fieldWithPath("studentId").description("학생의 고유번호").type(JsonFieldType.NUMBER),
-                                fieldWithPath("name").description("등록된 학생의 이름").type(JsonFieldType.STRING)
+                                fieldWithPath("name").description("등록된 학생의 이름").type(JsonFieldType.STRING),
+                                fieldWithPath("creditLimit").description("수강가능학점").type(JsonFieldType.NUMBER)
                         )
                 )
         );

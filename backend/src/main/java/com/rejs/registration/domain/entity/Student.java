@@ -26,6 +26,8 @@ public class Student {
     @Column
     private String password;
 
+    @Column
+    private Integer creditLimit;
 
     /* 관계 */
 
@@ -46,15 +48,18 @@ public class Student {
         }
     }
 
+    // # 로직
+
     // # 생성
 
     public Student(String name) {
         this.name = name;
+        this.creditLimit = 18;
     }
 
     public Student(String name, String password) {
         this.name = name;
         this.password = password;
+        this.creditLimit = 18;
     }
-
 }

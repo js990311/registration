@@ -12,4 +12,5 @@ export type RegistrationLecture = {
     name: string;
     capacity: number;
     registrationId: number;
+    credit: number;
 }

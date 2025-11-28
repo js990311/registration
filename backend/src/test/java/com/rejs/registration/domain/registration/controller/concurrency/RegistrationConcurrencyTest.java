@@ -1,4 +1,4 @@
-package com.rejs.registration.domain.registration.controller;
+package com.rejs.registration.domain.registration.controller.concurrency;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -72,13 +72,14 @@ public class RegistrationConcurrencyTest {
 
     private String lectureName = "동시성강의";
     private Integer capacity = 30;
+    private Integer credit = 3;
     private Integer studentCount = 100;
     private Long lectureId;
 
     @BeforeEach
     void setup(){
         // 수강신청할 강의 생성
-        Lecture lecture = new Lecture(lectureName, capacity);
+        Lecture lecture = new Lecture(lectureName, capacity, credit);
         lecture = lectureRepository.save(lecture);
         lectureId = lecture.getId();
 
@@ -108,7 +109,6 @@ public class RegistrationConcurrencyTest {
 
 
         Map<String, Object> requestBody = Map.of("lectureId", lectureId);
-
 
         for (final String token : tokens){
             executorService.submit(() -> {

@@ -20,7 +20,7 @@ public class LectureService {
 
     @Transactional
     public LectureDto create(CreateLectureRequest request) {
-        Lecture lecture = new Lecture(request.getName(), request.getCapacity());
+        Lecture lecture = new Lecture(request.getName(), request.getCapacity(), request.getCredit());
         lecture = lectureRepository.save(lecture);
         return LectureDto.from(lecture);
     }

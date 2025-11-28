@@ -9,12 +9,14 @@ public class LectureDto {
     private String name;
     private Integer capacity;
     private Integer studentCount;
+    private Integer credit;
 
-    public LectureDto(Long lectureId, String name, Integer capacity, Integer studentCount) {
+    public LectureDto(Long lectureId, String name, Integer capacity, Integer studentCount, Integer credit) {
         this.lectureId = lectureId;
         this.name = name;
         this.capacity = capacity;
         this.studentCount = studentCount;
+        this.credit = credit;
     }
 
     public static LectureDto from(Lecture lecture) {
@@ -22,7 +24,8 @@ public class LectureDto {
                 lecture.getId(),
                 lecture.getName(),
                 lecture.getCapacity(),
-                lecture.getStudentCount()
+                lecture.getStudentCount(),
+                lecture.getCredit()
         );
     }
 }

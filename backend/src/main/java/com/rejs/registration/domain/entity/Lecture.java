@@ -26,6 +26,9 @@ public class Lecture {
     private String name;
 
     @Column
+    private Integer credit;
+
+    @Column
     private Integer studentCount=0;
 
     // # 관계
@@ -49,9 +52,10 @@ public class Lecture {
 
     // # 생성
 
-    public Lecture(String name, Integer capacity) {
+    public Lecture(String name, Integer capacity, Integer credit) {
         this.capacity = capacity;
         this.name = name;
+        this.credit = credit;
     }
 
     // # 로직

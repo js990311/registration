@@ -6,4 +6,5 @@ import lombok.Getter;
 public class CreateLectureRequest {
     private String name;
     private Integer capacity;
+    private Integer credit;
 }

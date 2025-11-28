@@ -28,10 +28,16 @@ public interface RegistrationRepository extends JpaRepository<Registration, Long
     Optional<Registration> findByIdWithLock(@Param("id") Long id);
 
     @Query(
-        value = "SELECT new com.rejs.registration.domain.registration.dto.response.RegistrationLectureDto(l.id, l.name, l.capacity, r.id) FROM Registration r join r.lecture l where r.student.id = :studentId",
+        value = "SELECT new com.rejs.registration.domain.registration.dto.response.RegistrationLectureDto(l.id, l.name, l.capacity, r.id, l.credit) FROM Registration r join r.lecture l where r.student.id = :studentId",
         countQuery = "SELECT count(r) from Registration r where r.student.id = :studentId"
     )
     Page<RegistrationLectureDto> findByStudentId(@Param("studentId") Long studentId, Pageable pageable);
 
     Optional<Registration> findByStudentAndLecture(Student student, Lecture lecture);
+
+    @Query(
+            value = "SELECT COALESCE(SUM(l.credit),0) FROM registrations r join lectures l on r.lecture_id = l.lecture_id where r.student_id = :studentId",
+            nativeQuery = true
+    )
+    Integer sumCredit(@Param("studentId") Long studentId);
 }

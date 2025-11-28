@@ -1,8 +1,6 @@
 package com.rejs.registration.domain.registration.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rejs.registration.AbstractControllerTest;
-import com.rejs.registration.TestcontainersConfiguration;
 import com.rejs.registration.domain.entity.Lecture;
 import com.rejs.registration.domain.entity.Registration;
 import com.rejs.registration.domain.entity.Student;
@@ -15,14 +13,8 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -59,7 +51,7 @@ class StudentRegistrationControllerTest extends AbstractControllerTest {
         student1Token = jwtUtils.generateToken(student1.getId().toString(), "ROLE_USER").getAccessToken();
 
         for(int i=1;i<=lectureSize;i++){
-            Lecture lecture = new Lecture("이름" + i, 30);
+            Lecture lecture = new Lecture("이름" + i, 30, 3);
             lectureRepository.save(lecture);
             registrationRepository.save(new Registration(student1, lecture));
         }
@@ -89,7 +81,7 @@ class StudentRegistrationControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.data[0].name").isString())
                 .andExpect(jsonPath("$.data[0].capacity").isNumber())
                 .andExpect(jsonPath("$.data[0].registrationId").isNumber())
-
+                .andExpect(jsonPath("$.data[0].registrationId").isNumber())
 
                 .andExpect(jsonPath("$.count").value(pageSize))
                 .andExpect(jsonPath("$.count").isNumber())

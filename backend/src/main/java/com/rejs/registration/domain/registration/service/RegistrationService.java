@@ -43,17 +43,21 @@ public class RegistrationService {
 
     @Transactional
     public CreateRegistrationResponse create(ClaimsDto claims, CreateRegistrationRequest request) {
+        Student student = studentRepository.findByIdWithLock(Long.parseLong(claims.getUsername())).orElseThrow(StudentBusinessException::studentNotFound);
         Lecture lecture = lectureRepository.findByIdWithLock(request.getLectureId()).orElseThrow(LectureBusinessException::lectureNotFound);
-        Student student = studentRepository.findById(Long.parseLong(claims.getUsername())).orElseThrow(StudentBusinessException::studentNotFound);
 
         if(registrationRepository.isAlreadyRegistered(lecture.getId(), student.getId())){
             throw RegistrationBusinessException.alreadyRegistration();
         }
 
-        // 강의가 여전히 신청가능한지 확인
-//        Long studentCount = registrationRepository.countByLectureId(lecture.getId());
         if(!lecture.hasCapacity()){
             throw RegistrationBusinessException.lectureAlreadyFull("현 수강인원 : " + lecture.getStudentCount());
+        }
+
+        // 학생의 최대 수강신청 학점을 초과하는 지
+        Integer sumCredits = registrationRepository.sumCredit(student.getId());
+        if (sumCredits!= null && sumCredits + lecture.getCredit() > student.getCreditLimit()){
+            throw new RegistrationBusinessException(ProblemCode.CREDIT_EXCEEDED);
         }
 
         Registration registration = new Registration(student, lecture);
@@ -74,8 +78,8 @@ public class RegistrationService {
 
     @Transactional
     public void cancel(ClaimsDto claims, Long id) {
+        Student student = studentRepository.findByIdWithLock(Long.parseLong(claims.getUsername())).orElseThrow(StudentBusinessException::studentNotFound);
         Lecture lecture = lectureRepository.findByIdWithLock(id).orElseThrow(LectureBusinessException::lectureNotFound);
-        Student student = studentRepository.findById(Long.parseLong(claims.getUsername())).orElseThrow(StudentBusinessException::studentNotFound);
         Registration registration = registrationRepository.findByStudentAndLecture(student, lecture).orElseThrow(RegistrationBusinessException::registrationNotFound);
 
         lecture.decreaseStudentCount();

@@ -59,6 +59,8 @@ class RegistrationControllerTest extends AbstractControllerTest {
     private Long lecture2Id;
     private String lectureName = "동시성강의";
     private Integer capacity = 2;
+    private Integer credit = 3;
+
     private Long student1Id;
     private Long student2Id;
     private Long student3Id;
@@ -71,7 +73,7 @@ class RegistrationControllerTest extends AbstractControllerTest {
 
     @BeforeEach
     void setup(){
-        Lecture lecture = new Lecture(lectureName, capacity);
+        Lecture lecture = new Lecture(lectureName, capacity, credit);
         lecture = lectureRepository.save(lecture);
         lectureId = lecture.getId();
 
@@ -93,7 +95,7 @@ class RegistrationControllerTest extends AbstractControllerTest {
         LocalDateTime start = LocalDateTime.now().minusDays(1);
         LocalDateTime end = start.plusDays(7);
         periodRepository.save(new RegistrationPeriod(start, end));
-        Lecture lecture2 = new Lecture(lectureName, capacity);
+        Lecture lecture2 = new Lecture(lectureName, capacity, credit);
         lecture2 = lectureRepository.save(lecture2);
         lecture2Id = lecture2.getId();
 

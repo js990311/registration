@@ -1,4 +1,4 @@
-package com.rejs.registration.domain.registration.controller;
+package com.rejs.registration.domain.registration.controller.concurrency;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rejs.registration.TestcontainersConfiguration;
@@ -71,6 +71,7 @@ public class RegistrationCancelConcurrencyTest {
 
     private String lectureName = "동시성강의";
     private Integer capacity = 30;
+    private Integer credit = 3;
     private Integer studentCount = 80;
     private Integer cancelStudentCount = 20;
     private Long lectureId;
@@ -80,7 +81,7 @@ public class RegistrationCancelConcurrencyTest {
     @BeforeEach
     void setup(){
         // 수강신청할 강의 생성
-        Lecture lecture = new Lecture(lectureName, capacity);
+        Lecture lecture = new Lecture(lectureName, capacity,credit);
         lecture = lectureRepository.save(lecture);
         lectureId = lecture.getId();
 

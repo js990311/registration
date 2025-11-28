@@ -8,6 +8,7 @@ export const useCreateLecture = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string>('');
     const [name, setName] = useState('');
+    const [credit, setCredit] = useState('');
     const [capacity, setCapacity] = useState('');
     const router = useRouter();
 
@@ -33,6 +34,7 @@ export const useCreateLecture = () => {
                 body: JSON.stringify({
                     name: name,
                     capacity: capacityNumber,
+                    credit: credit,
                 })
             });
 
@@ -53,6 +55,7 @@ export const useCreateLecture = () => {
     return{
         error, loading,
         name, setName,
+        credit, setCredit,
         capacity, setCapacity,
         createLecture,
     }

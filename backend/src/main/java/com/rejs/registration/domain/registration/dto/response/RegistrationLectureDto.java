@@ -8,11 +8,13 @@ public class RegistrationLectureDto {
     private String name;
     private Integer capacity;
     private Long registrationId;
+    private Integer credit;
 
-    public RegistrationLectureDto(Long lectureId, String name, Integer capacity, Long registrationId) {
+    public RegistrationLectureDto(Long lectureId, String name, Integer capacity, Long registrationId, Integer credit) {
         this.lectureId = lectureId;
         this.name = name;
         this.capacity = capacity;
         this.registrationId = registrationId;
+        this.credit = credit;
     }
 }
