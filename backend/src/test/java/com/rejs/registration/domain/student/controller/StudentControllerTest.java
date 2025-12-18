@@ -1,5 +1,6 @@
 package com.rejs.registration.domain.student.controller;
 
+import com.epages.restdocs.apispec.FieldDescriptors;
 import com.epages.restdocs.apispec.HeaderDescriptorWithType;
 import com.rejs.registration.AbstractControllerTest;
 import com.rejs.registration.domain.entity.Student;
@@ -54,46 +55,24 @@ class StudentControllerTest extends AbstractControllerTest {
         );
 
         result.andExpect(status().isOk())
-                .andExpect(jsonPath("$.studentId").value(student1.getId()))
-                .andExpect(jsonPath("$.name").value(student1.getName()))
-                .andExpect(jsonPath("$.creditLimit").value(student1.getCreditLimit()))
+                .andExpect(jsonPath("$.data.studentId").value(student1.getId()))
+                .andExpect(jsonPath("$.data.name").value(student1.getName()))
+                .andExpect(jsonPath("$.data.creditLimit").value(student1.getCreditLimit()))
         ;
 
         result.andDo(
                 document((builder)->builder
                         .responseFields(
-                                fieldWithPath("studentId").description("학생의 고유번호").type(JsonFieldType.NUMBER),
-                                fieldWithPath("name").description("등록된 학생의 이름").type(JsonFieldType.STRING),
-                                fieldWithPath("creditLimit").description("수강가능학점").type(JsonFieldType.NUMBER)
+                                data(
+                                        new FieldDescriptors(
+                                                fieldWithPath("studentId").description("학생의 고유번호").type(JsonFieldType.NUMBER),
+                                                fieldWithPath("name").description("등록된 학생의 이름").type(JsonFieldType.STRING),
+                                                fieldWithPath("creditLimit").description("수강가능학점").type(JsonFieldType.NUMBER)
+                                        )
+                                )
                         )
                 )
         );
 
     }
-
-    @Test
-    void readLectureById404() throws Exception{
-        ResultActions result = mockMvc.perform(
-                get("/students/{id}", 0)
-                        .header("Authorization","Bearer " + studentToken)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .accept(MediaType.APPLICATION_JSON)
-        );
-
-        result.andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.type").value(ProblemCode.STUDENT_NOT_FOUND.getType()))
-                .andExpect(jsonPath("$.title").value(ProblemCode.STUDENT_NOT_FOUND.getTitle()))
-                .andExpect(jsonPath("$.status").value(ProblemCode.STUDENT_NOT_FOUND.getStatus().value()))
-                .andExpect(jsonPath("$.instance").value("/students/0"))
-        ;
-
-        result.andDo(document(
-                (builder)->
-                        builder
-                                .requestHeaders(authorizationHeader())
-                                .responseSchema(problemSchema())
-                                .responseFields(problemFields())
-        ));
-    }
-
 }

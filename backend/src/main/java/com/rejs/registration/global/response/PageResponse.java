@@ -5,6 +5,7 @@ import org.springframework.data.domain.Page;
 
 import java.util.List;
 
+@Deprecated
 @Getter
 public class PageResponse <T>{
     private Integer totalPage;

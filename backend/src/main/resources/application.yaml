@@ -18,5 +18,12 @@ spring:
     web:
       pageable:
         one-indexed-parameters: true
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    url: /docs/openapi3.yaml
+
 jwt:
   secret-key: Gl2Skb6wkkiX0cRUQptpZfm/JdE1ivSIboP2wrpqN7Q=

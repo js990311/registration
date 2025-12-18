@@ -17,10 +17,11 @@ import org.springframework.web.bind.annotation.*;
 public class LectureController {
     private final LectureService lectureService;
 
+    @ResponseStatus(HttpStatus.CREATED)
     @PostMapping
-    public ResponseEntity<LectureDto> createLecture(@RequestBody CreateLectureRequest request){
+    public LectureDto createLecture(@RequestBody CreateLectureRequest request){
         LectureDto lectureDto = lectureService.create(request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(lectureDto);
+        return lectureDto;
     }
 
     @GetMapping("/{id}")

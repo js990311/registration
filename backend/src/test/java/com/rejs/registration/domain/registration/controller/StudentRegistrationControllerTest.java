@@ -1,5 +1,6 @@
 package com.rejs.registration.domain.registration.controller;
 
+import com.epages.restdocs.apispec.FieldDescriptors;
 import com.rejs.registration.AbstractControllerTest;
 import com.rejs.registration.domain.entity.Lecture;
 import com.rejs.registration.domain.entity.Registration;
@@ -13,8 +14,11 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.restdocs.payload.JsonFieldType;
 import org.springframework.test.web.servlet.ResultActions;
 
+import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
+import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -81,24 +85,52 @@ class StudentRegistrationControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.data[0].name").isString())
                 .andExpect(jsonPath("$.data[0].capacity").isNumber())
                 .andExpect(jsonPath("$.data[0].registrationId").isNumber())
-                .andExpect(jsonPath("$.data[0].registrationId").isNumber())
+                .andExpect(jsonPath("$.data[0].credit").isNumber())
 
-                .andExpect(jsonPath("$.count").value(pageSize))
-                .andExpect(jsonPath("$.count").isNumber())
-
-                .andExpect(jsonPath("$.totalElements").value(lectureSize))
-                .andExpect(jsonPath("$.totalElements").isNumber())
-
-                .andExpect(jsonPath("$.pageNumber").value(pageNumber))
-                .andExpect(jsonPath("$.pageNumber").isNumber())
-
-                .andExpect(jsonPath("$.pageSize").value(pageSize))
-                .andExpect(jsonPath("$.pageSize").isNumber())
-
-                .andExpect(jsonPath("$.hasNextPage").isBoolean())
-                .andExpect(jsonPath("$.hasNextPage").value(true))
-
+                .andExpect(jsonPath("$.pagination.count").value(pageSize))
+                .andExpect(jsonPath("$.pagination.count").isNumber())
+                .andExpect(jsonPath("$.pagination.totalElements").value(lectureSize))
+                .andExpect(jsonPath("$.pagination.totalElements").isNumber())
+                .andExpect(jsonPath("$.pagination.requestNumber").value(pageNumber))
+                .andExpect(jsonPath("$.pagination.requestNumber").isNumber())
+                .andExpect(jsonPath("$.pagination.requestSize").value(pageSize))
+                .andExpect(jsonPath("$.pagination.requestSize").isNumber())
+                .andExpect(jsonPath("$.pagination.hasNextPage").isBoolean())
+                .andExpect(jsonPath("$.pagination.hasNextPage").value(true))
+                .andExpect(jsonPath("$.pagination.totalPage").isNumber())
+                .andExpect(jsonPath("$.pagination.blockLeft").isNumber())
+                .andExpect(jsonPath("$.pagination.blockRight").isNumber());
         ;
+
+        result.andDo(
+                document(builder->builder
+                        .queryParameters(
+                                parameterWithName("page").description("페이지 번호"),
+                                parameterWithName("size").description("페이지 크기")
+                        )
+                        .responseFields(
+                                paginationFields().andWithPrefix(
+                                        "data[].", mergeFields(new FieldDescriptors(
+                                                fieldWithPath("lectureId")
+                                                        .description("강의 id ")
+                                                        .type(JsonFieldType.NUMBER),
+                                                fieldWithPath("name")
+                                                        .description("강의명")
+                                                        .type(JsonFieldType.STRING),
+                                                fieldWithPath("capacity")
+                                                        .description("강의 수강신청가능인원")
+                                                        .type(JsonFieldType.NUMBER),
+                                                fieldWithPath("registrationId")
+                                                        .description("수강등록 id")
+                                                        .type(JsonFieldType.NUMBER),
+                                                fieldWithPath("credit")
+                                                        .description("학점")
+                                                        .type(JsonFieldType.NUMBER)
+                                        ))
+                                )
+                        ))
+        );
+
     }
 
 

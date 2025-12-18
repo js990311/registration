@@ -48,8 +48,8 @@ class AuthenticationControllerTest extends AbstractControllerTest {
         );
         result
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.accessToken").isString())
-                .andExpect(jsonPath("$.refreshToken").isString())
+                .andExpect(jsonPath("$.data.accessToken").isString())
+                .andExpect(jsonPath("$.data.refreshToken").isString())
         ;
 
         result
@@ -63,7 +63,7 @@ class AuthenticationControllerTest extends AbstractControllerTest {
                                                 .description("비밀번호")
                                                 .type(JsonFieldType.STRING)
                                 ).responseFields(
-                                        tokensFields()
+                                        data(tokensFields())
                                 )
                         )
                 )
@@ -82,8 +82,8 @@ class AuthenticationControllerTest extends AbstractControllerTest {
         );
         result
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.accessToken").isString())
-                .andExpect(jsonPath("$.refreshToken").isString())
+                .andExpect(jsonPath("$.data.accessToken").isString())
+                .andExpect(jsonPath("$.data.refreshToken").isString())
         ;
 
         result.andDo(
@@ -96,7 +96,7 @@ class AuthenticationControllerTest extends AbstractControllerTest {
                                         .description("비밀번호")
                                         .type(JsonFieldType.STRING)
                             ).responseFields(
-                                tokensFields()
+                                data(tokensFields())
                             )
                     )
         );
@@ -118,13 +118,8 @@ class AuthenticationControllerTest extends AbstractControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request))
         );
-        result
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.type").value(ProblemCode.USER_INFO_MISMATCH.getType()))
-                .andExpect(jsonPath("$.title").value(ProblemCode.USER_INFO_MISMATCH.getTitle()))
-                .andExpect(jsonPath("$.status").value(ProblemCode.USER_INFO_MISMATCH.getStatus().value()))
-                .andExpect(jsonPath("$.instance").value("/login"))
-        ;
+
+        andExpectException(result, ProblemCode.USER_INFO_MISMATCH, "/login");
 
         result
                 .andDo(
@@ -159,14 +154,14 @@ class AuthenticationControllerTest extends AbstractControllerTest {
 
         result
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.accessToken").isString())
-                .andExpect(jsonPath("$.refreshToken").isString())
+                .andExpect(jsonPath("$.data.accessToken").isString())
+                .andExpect(jsonPath("$.data.refreshToken").isString())
         ;
 
         result.andDo(
                 document(builder -> builder
                         .responseFields(
-                                tokensFields()
+                                data(tokensFields())
                         )
                 )
         );
@@ -183,13 +178,7 @@ class AuthenticationControllerTest extends AbstractControllerTest {
                 .header("Authorization", "Bearer " + tokens.getAccessToken())
         );
 
-        result
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.type").value(ProblemCode.REFRESH_TOKEN_REQUIRED.getType()))
-                .andExpect(jsonPath("$.title").value(ProblemCode.REFRESH_TOKEN_REQUIRED.getTitle()))
-                .andExpect(jsonPath("$.status").value(ProblemCode.REFRESH_TOKEN_REQUIRED.getStatus().value()))
-                .andExpect(jsonPath("$.instance").value("/refresh"))
-        ;
+        andExpectException(result, ProblemCode.REFRESH_TOKEN_REQUIRED, "/refresh");
 
         result.andDo(
                 document(builder -> builder
@@ -206,13 +195,7 @@ class AuthenticationControllerTest extends AbstractControllerTest {
                 .contentType(MediaType.APPLICATION_JSON)
         );
 
-        result
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.type").value(ProblemCode.REFRESH_TOKEN_REQUIRED.getType()))
-                .andExpect(jsonPath("$.title").value(ProblemCode.REFRESH_TOKEN_REQUIRED.getTitle()))
-                .andExpect(jsonPath("$.status").value(ProblemCode.REFRESH_TOKEN_REQUIRED.getStatus().value()))
-                .andExpect(jsonPath("$.instance").value("/refresh"))
-        ;
+        andExpectException(result, ProblemCode.REFRESH_TOKEN_REQUIRED, "/refresh");
 
         result.andDo(
                 document(builder -> builder

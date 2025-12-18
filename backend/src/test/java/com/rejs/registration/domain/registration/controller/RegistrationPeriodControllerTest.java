@@ -40,6 +40,8 @@ class RegistrationPeriodControllerTest extends AbstractControllerTest {
                 "endTime", now.plusDays(7)
         );
 
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+
         ResultActions result = mockMvc.perform(
                 post("/registrations/periods")
                         .contentType(MediaType.APPLICATION_JSON)
@@ -48,9 +50,9 @@ class RegistrationPeriodControllerTest extends AbstractControllerTest {
         );
 
         result.andExpect(status().isCreated())
-                .andExpect(jsonPath("$.periodId").isNumber())
-                .andExpect(jsonPath("$.startTime").value(now.toString()))
-                .andExpect(jsonPath("$.endTime").value(now.plusDays(7).toString()))
+                .andExpect(jsonPath("$.data.periodId").isNumber())
+                .andExpect(jsonPath("$.data.startTime").value(now.format(formatter)))
+                .andExpect(jsonPath("$.data.endTime").value(now.plusDays(7).format(formatter)))
         ;
 
         result.andDo(
@@ -61,9 +63,9 @@ class RegistrationPeriodControllerTest extends AbstractControllerTest {
                                         fieldWithPath("endTime").description("수강신청기간의 종료시간").type(JsonFieldType.STRING)
                                 )
                                 .responseFields(
-                                        fieldWithPath("periodId").description("수강신청기한의 고유제어번호").type(JsonFieldType.NUMBER),
-                                        fieldWithPath("startTime").description("수강신청기간의 시작시간").type(JsonFieldType.STRING),
-                                        fieldWithPath("endTime").description("수강신청기간의 종료시간").type(JsonFieldType.STRING)
+                                        fieldWithPath("data.periodId").description("수강신청기한의 고유제어번호").type(JsonFieldType.NUMBER),
+                                        fieldWithPath("data.startTime").description("수강신청기간의 시작시간").type(JsonFieldType.STRING),
+                                        fieldWithPath("data.endTime").description("수강신청기간의 종료시간").type(JsonFieldType.STRING)
                                 )
                 )
         );

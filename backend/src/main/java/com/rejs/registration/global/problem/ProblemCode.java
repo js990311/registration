@@ -3,8 +3,10 @@ package com.rejs.registration.global.problem;
 import org.springframework.http.HttpStatus;
 
 public enum ProblemCode {
+    NOT_FOUNT("NOT_FOUNT", "존재하지 않는 경로입니다", HttpStatus.NOT_FOUND),
     // 인증 관랸
     INVALID_TOKEN("INVALID_TOKEN", "잘못된 토큰입니다", HttpStatus.UNAUTHORIZED),
+    AUTHENTICATION_REQUIRE("AUTHENTICATION_REQUIRE", "인증이 필요합니다",HttpStatus.UNAUTHORIZED),
     ACCESS_DENIED("ACCESS_DENIED", "권한이 없습니다", HttpStatus.FORBIDDEN),
     USER_INFO_MISMATCH("USER_INFO_MISMATCH", "유저정보가 맞지 않습니다", HttpStatus.UNAUTHORIZED),
     REFRESH_TOKEN_REQUIRED("REFRESH_TOKEN_REQUIRED", "REFRESH TOKEN이 필요합니다.", HttpStatus.UNAUTHORIZED),

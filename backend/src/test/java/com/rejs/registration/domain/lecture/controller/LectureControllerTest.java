@@ -60,10 +60,10 @@ class LectureControllerTest extends AbstractControllerTest {
         );
 
         result.andExpect(status().isCreated())
-                .andExpect(jsonPath("$.lectureId").isNumber())
-                .andExpect(jsonPath("$.name").value(name))
-                .andExpect(jsonPath("$.capacity").value(capacity))
-                .andExpect(jsonPath("$.credit").value(credit))
+                .andExpect(jsonPath("$.data.lectureId").isNumber())
+                .andExpect(jsonPath("$.data.name").value(name))
+                .andExpect(jsonPath("$.data.capacity").value(capacity))
+                .andExpect(jsonPath("$.data.credit").value(credit))
         ;
 
         result.andDo(
@@ -73,7 +73,7 @@ class LectureControllerTest extends AbstractControllerTest {
                                 fieldWithPath("capacity").description("강의 최대 수강인원").type(JsonFieldType.NUMBER),
                                 fieldWithPath("credit").description("학점").type(JsonFieldType.NUMBER)
                         )
-                        .responseFields(lectureFields())
+                        .responseFields(data(lectureFields()))
                 )
         );
     }
@@ -96,10 +96,10 @@ class LectureControllerTest extends AbstractControllerTest {
         );
 
         result.andExpect(status().isOk())
-                .andExpect(jsonPath("$.lectureId").isNumber())
-                .andExpect(jsonPath("$.name").value(name))
-                .andExpect(jsonPath("$.capacity").value(capacity))
-                .andExpect(jsonPath("$.credit").value(credit))
+                .andExpect(jsonPath("$.data.lectureId").isNumber())
+                .andExpect(jsonPath("$.data.name").value(name))
+                .andExpect(jsonPath("$.data.capacity").value(capacity))
+                .andExpect(jsonPath("$.data.credit").value(credit))
         ;
 
         result.andDo(
@@ -107,7 +107,7 @@ class LectureControllerTest extends AbstractControllerTest {
                         .pathParameters(
                                 parameterWithName("id").description("강의 번호")
                         )
-                        .responseFields(lectureFields())
+                        .responseFields(data(lectureFields()))
                 )
         );
 
@@ -121,12 +121,9 @@ class LectureControllerTest extends AbstractControllerTest {
                         .accept(MediaType.APPLICATION_JSON)
         );
 
-        result.andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.type").value(ProblemCode.LECTURE_NOT_FOUND.getType()))
-                .andExpect(jsonPath("$.title").value(ProblemCode.LECTURE_NOT_FOUND.getTitle()))
-                .andExpect(jsonPath("$.status").value(ProblemCode.LECTURE_NOT_FOUND.getStatus().value()))
-                .andExpect(jsonPath("$.instance").value("/lectures/0"))
-        ;
+        ProblemCode code = ProblemCode.LECTURE_NOT_FOUND;
+
+        andExpectException(result, code, "/lectures/0");
 
         result.andDo(
                 document(builder->builder
@@ -161,22 +158,19 @@ class LectureControllerTest extends AbstractControllerTest {
                 .andExpect(jsonPath("$.data[0].lectureId").isNumber())
                 .andExpect(jsonPath("$.data[0].name").isString())
                 .andExpect(jsonPath("$.data[0].capacity").isNumber())
-
-                .andExpect(jsonPath("$.count").value(pageSize))
-                .andExpect(jsonPath("$.count").isNumber())
-
-                .andExpect(jsonPath("$.totalElements").value(lectureSize))
-                .andExpect(jsonPath("$.totalElements").isNumber())
-
-                .andExpect(jsonPath("$.pageNumber").value(pageNumber))
-                .andExpect(jsonPath("$.pageNumber").isNumber())
-
-                .andExpect(jsonPath("$.pageSize").value(pageSize))
-                .andExpect(jsonPath("$.pageSize").isNumber())
-
-                .andExpect(jsonPath("$.hasNextPage").isBoolean())
-                .andExpect(jsonPath("$.hasNextPage").value(true))
-        ;
+                .andExpect(jsonPath("$.pagination.count").value(pageSize))
+                .andExpect(jsonPath("$.pagination.count").isNumber())
+                .andExpect(jsonPath("$.pagination.totalElements").value(lectureSize))
+                .andExpect(jsonPath("$.pagination.totalElements").isNumber())
+                .andExpect(jsonPath("$.pagination.requestNumber").value(pageNumber))
+                .andExpect(jsonPath("$.pagination.requestNumber").isNumber())
+                .andExpect(jsonPath("$.pagination.requestSize").value(pageSize))
+                .andExpect(jsonPath("$.pagination.requestSize").isNumber())
+                .andExpect(jsonPath("$.pagination.hasNextPage").isBoolean())
+                .andExpect(jsonPath("$.pagination.hasNextPage").value(true))
+                .andExpect(jsonPath("$.pagination.totalPage").isNumber())
+                .andExpect(jsonPath("$.pagination.blockLeft").isNumber())
+                .andExpect(jsonPath("$.pagination.blockRight").isNumber());
 
         result.andDo(
                 document(builder->builder
@@ -184,8 +178,10 @@ class LectureControllerTest extends AbstractControllerTest {
                                 parameterWithName("page").description("페이지 번호"),
                                 parameterWithName("size").description("페이지 크기")
                         )
-                        .responseFields(paginationFields().andWithPrefix(
-                        "data[].", mergeFields(lectureFields()))
+                        .responseFields(
+                                paginationFields().andWithPrefix(
+                                    "data[].", mergeFields(lectureFields())
+                                )
                 ))
         );
     }

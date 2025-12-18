@@ -121,8 +121,8 @@ class RegistrationControllerTest extends AbstractControllerTest {
         );
 
         result.andExpect(status().isCreated())
-                .andExpect(jsonPath("$.lectureId").value(lectureId))
-                .andExpect(jsonPath("$.registrationId").isNumber())
+                .andExpect(jsonPath("$.data.lectureId").value(lectureId))
+                .andExpect(jsonPath("$.data.registrationId").isNumber())
         ;
 
         result.andDo(
@@ -132,8 +132,8 @@ class RegistrationControllerTest extends AbstractControllerTest {
                                 fieldWithPath("lectureId").type(JsonFieldType.NUMBER).description("강의 ID")
                         )
                         .responseFields(
-                                fieldWithPath("lectureId").type(JsonFieldType.NUMBER).description("강의 ID"),
-                                fieldWithPath("registrationId").type(JsonFieldType.NUMBER).description("수강신청 내역 ID")
+                                fieldWithPath("data.lectureId").type(JsonFieldType.NUMBER).description("강의 ID"),
+                                fieldWithPath("data.registrationId").type(JsonFieldType.NUMBER).description("수강신청 내역 ID")
                         )
                 )
         );
@@ -149,12 +149,7 @@ class RegistrationControllerTest extends AbstractControllerTest {
                 .header("Authorization", "Not Token")
         );
 
-        result.andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.type").value(ProblemCode.INVALID_TOKEN.getType()))
-                .andExpect(jsonPath("$.title").value(ProblemCode.INVALID_TOKEN.getTitle()))
-                .andExpect(jsonPath("$.status").value(ProblemCode.INVALID_TOKEN.getStatus().value()))
-                .andExpect(jsonPath("$.instance").value("/registrations"))
-        ;
+        andExpectException(result, ProblemCode.INVALID_TOKEN, "/registrations");
 
         result.andDo(
                 document(builder->builder
@@ -177,12 +172,7 @@ class RegistrationControllerTest extends AbstractControllerTest {
                 .header("Authorization","Bearer " + student1Token)
         );
 
-        result.andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.type").value(ProblemCode.LECTURE_NOT_FOUND.getType()))
-                .andExpect(jsonPath("$.title").value(ProblemCode.LECTURE_NOT_FOUND.getTitle()))
-                .andExpect(jsonPath("$.status").value(ProblemCode.LECTURE_NOT_FOUND.getStatus().value()))
-                .andExpect(jsonPath("$.instance").value("/registrations"))
-        ;
+        andExpectException(result, ProblemCode.LECTURE_NOT_FOUND, "/registrations");
 
         result.andDo(
                 document(builder->builder
@@ -216,12 +206,7 @@ class RegistrationControllerTest extends AbstractControllerTest {
                 .header("Authorization","Bearer " + student3Token)
         );
 
-        result.andExpect(status().isConflict())
-                .andExpect(jsonPath("$.type").value(ProblemCode.LECTURE_ALREADY_FULL.getType()))
-                .andExpect(jsonPath("$.title").value(ProblemCode.LECTURE_ALREADY_FULL.getTitle()))
-                .andExpect(jsonPath("$.status").value(ProblemCode.LECTURE_ALREADY_FULL.getStatus().value()))
-                .andExpect(jsonPath("$.instance").value("/registrations"))
-        ;
+        andExpectException(result, ProblemCode.LECTURE_ALREADY_FULL, "/registrations");
 
         result.andDo(
                 document(builder->builder
@@ -250,12 +235,7 @@ class RegistrationControllerTest extends AbstractControllerTest {
                 .header("Authorization","Bearer " + student2Token)
         );
 
-        result.andExpect(status().isConflict())
-                .andExpect(jsonPath("$.type").value(ProblemCode.ALREADY_REGISTRATION.getType()))
-                .andExpect(jsonPath("$.title").value(ProblemCode.ALREADY_REGISTRATION.getTitle()))
-                .andExpect(jsonPath("$.status").value(ProblemCode.ALREADY_REGISTRATION.getStatus().value()))
-                .andExpect(jsonPath("$.instance").value("/registrations"))
-        ;
+        andExpectException(result, ProblemCode.ALREADY_REGISTRATION, "/registrations");
 
         result.andDo(
                 document(builder->builder
@@ -285,12 +265,7 @@ class RegistrationControllerTest extends AbstractControllerTest {
                 .header("Authorization","Bearer " + student1Token)
         );
 
-        result.andExpect(status().isForbidden())
-                .andExpect(jsonPath("$.type").value(ProblemCode.NOT_REGISTRATION_PERIOD.getType()))
-                .andExpect(jsonPath("$.title").value(ProblemCode.NOT_REGISTRATION_PERIOD.getTitle()))
-                .andExpect(jsonPath("$.status").value(ProblemCode.NOT_REGISTRATION_PERIOD.getStatus().value()))
-                .andExpect(jsonPath("$.instance").value("/registrations"))
-        ;
+        andExpectException(result, ProblemCode.NOT_REGISTRATION_PERIOD, "/registrations");
 
         result.andDo(
                 document(builder->builder
@@ -310,6 +285,7 @@ class RegistrationControllerTest extends AbstractControllerTest {
         ResultActions result = mockMvc.perform(delete("/registrations").queryParam("lectureId", String.valueOf(lecture2Id))
                 .header("Authorization", "Bearer " + student1Token)
         );
+
         result.andExpect(status().isNoContent());
 
         result.andDo(
@@ -328,13 +304,8 @@ class RegistrationControllerTest extends AbstractControllerTest {
         ResultActions result = mockMvc.perform(delete("/registrations").queryParam("lectureId", String.valueOf(lecture2Id))
                 .header("Authorization", "Bearer " + "")
         );
-        result.andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.type").value(ProblemCode.INVALID_TOKEN.getType()))
-                .andExpect(jsonPath("$.title").value(ProblemCode.INVALID_TOKEN.getTitle()))
-                .andExpect(jsonPath("$.status").value(ProblemCode.INVALID_TOKEN.getStatus().value()))
-                .andExpect(jsonPath("$.instance").value("/registrations"))
-        ;
 
+        andExpectException(result, ProblemCode.INVALID_TOKEN, "/registrations");
 
         result.andDo(
                 document(builder->builder
@@ -353,13 +324,8 @@ class RegistrationControllerTest extends AbstractControllerTest {
         ResultActions result = mockMvc.perform(delete("/registrations").queryParam("lectureId", String.valueOf(lecture2Id))
                 .header("Authorization", "Bearer " + student2Token)
         );
-        result.andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.type").value(ProblemCode.REGISTRATION_NOT_FOUND.getType()))
-                .andExpect(jsonPath("$.title").value(ProblemCode.REGISTRATION_NOT_FOUND.getTitle()))
-                .andExpect(jsonPath("$.status").value(ProblemCode.REGISTRATION_NOT_FOUND.getStatus().value()))
-                .andExpect(jsonPath("$.instance").value("/registrations"))
-        ;
 
+        andExpectException(result, ProblemCode.REGISTRATION_NOT_FOUND, "/registrations");
 
         result.andDo(
                 document(builder->builder
@@ -378,13 +344,8 @@ class RegistrationControllerTest extends AbstractControllerTest {
         ResultActions result = mockMvc.perform(delete("/registrations").queryParam("lectureId", String.valueOf(lectureId))
                 .header("Authorization", "Bearer " + student1Token)
         );
-        result.andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.type").value(ProblemCode.REGISTRATION_NOT_FOUND.getType()))
-                .andExpect(jsonPath("$.title").value(ProblemCode.REGISTRATION_NOT_FOUND.getTitle()))
-                .andExpect(jsonPath("$.status").value(ProblemCode.REGISTRATION_NOT_FOUND.getStatus().value()))
-                .andExpect(jsonPath("$.instance").value("/registrations"))
-        ;
 
+        andExpectException(result, ProblemCode.REGISTRATION_NOT_FOUND, "/registrations");
 
         result.andDo(
                 document(builder->builder
