@@ -1,0 +1,5 @@
+http://localhost {
+    reverse_proxy registration-1:8080 registration-2:8080 {
+        header_down X-Server-Name {upstream_hostport}
+    }
+}
