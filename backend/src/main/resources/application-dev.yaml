@@ -30,4 +30,4 @@ springdoc:
     url: /docs/openapi3.yaml
 
 jwt:
-  secret-key: Gl2Skb6wkkiX0cRUQptpZfm/JdE1ivSIboP2wrpqN7Q=
+  secret-key: ${JWT_SECRET_KEY}

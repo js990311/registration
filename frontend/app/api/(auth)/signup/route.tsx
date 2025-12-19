@@ -1,32 +1,23 @@
 import {NextRequest, NextResponse} from "next/server";
-import {ProblemResponse} from "@/src/type/error/error";
 import {Tokens} from "@/src/type/auth/tokens";
-import {cookies} from "next/headers";
 import {setTokens} from "@/src/lib/api/tokenUtils";
+import {fetchOne} from "@/src/lib/api/fetchWrapper";
+import {actionCatch} from "@/src/lib/api/actionUtils";
+import {ActionOneResponse} from "@/src/type/response/actionResponse";
 
-export async function POST(req: NextRequest){
-    const HOST = process.env.BACKEND_HOST || 'http://localhost:8080';
-    const cookieStore = await cookies();
-
+export async function POST(req: NextRequest):Promise<NextResponse<ActionOneResponse<null>>>{
     try {
         const body = await req.json();
-        const apiResponse = await fetch(`${HOST}/signup`, {
+
+        const response = await fetchOne<Tokens>({
+            endpoint: '/signup',
             method: "POST",
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(body),
+            body: body,
         });
-
-        if(apiResponse.status !== 201){
-            const problemResponse: ProblemResponse = await apiResponse.json();
-            return NextResponse.json({success: false, 'problem' : problemResponse}, {status: apiResponse.status});
-        }
-
-        const tokens : Tokens = await apiResponse.json();
-        setTokens(tokens);
-        return NextResponse.json({success: true}, {status: 201});
+        await setTokens(response.data);
+        return NextResponse.json({success: true, data: null}, {status: 201});
     }catch (error){
-        return NextResponse.json({success: false}, {status: 500});
+        const failResponse = await actionCatch("/api/signup", error)
+        return NextResponse.json(failResponse, {status: failResponse.error.status|| 500});
     }
 }

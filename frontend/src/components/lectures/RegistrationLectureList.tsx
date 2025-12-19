@@ -5,6 +5,7 @@ import UnenrollButton from "@/src/components/lectures/button/UnenrollButton";
 import styles from './RegistrationLectureList.module.css';
 import {Card} from "@/src/components/Card/Card";
 import clsx from "clsx";
+import Link from "next/link";
 
 type RegistrationLectureListProps = {
     lectures: RegistrationLecture[],
@@ -19,11 +20,11 @@ export default function RegistrationLectureList({lectures, onUnenroll} : Readonl
                     <li key={lecture.lectureId}>
                         <Card className={clsx(styles.registrationCard)}>
                             <div>
-                                <a href={`/lectures/${lecture.lectureId}`}>
+                                <Link href={`/lectures/${lecture.lectureId}`}>
                                     <p className={clsx(styles.lectureName)}>
                                         {lecture.name}
                                     </p>
-                                </a>
+                                </Link>
                                 <p>
                                     정원 : {lecture.capacity}
                                 </p>

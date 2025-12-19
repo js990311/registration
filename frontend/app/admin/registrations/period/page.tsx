@@ -5,6 +5,9 @@ import {CreatePeriodRequest} from "@/src/type/registration/period/period";
 import {Card} from "@/src/components/Card/Card";
 import {Button} from "@/src/components/button/Button";
 import {DatetimeInput} from "@/src/components/datetime/DatetimeInput";
+import {createRegistrationPeriods} from "@/src/action/registrationPeriodAction";
+import toast from "react-hot-toast";
+import {errorToString} from "@/src/lib/api/apiError";
 
 export default function RegistrationPeriodPage(){
     const now = new Date();
@@ -19,15 +22,16 @@ export default function RegistrationPeriodPage(){
             endTime: endTime.toISOString()
         }
 
-        fetch('/api/registrations/periods', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(requestBody)
-        });
+        createRegistrationPeriods(requestBody)
+            .then(resp=>{
+                if(resp.success){
+                    toast.success("수강신청기간이 생성되었습니다.");
+                }else{
+                    toast.error(errorToString("", resp.error));
+                }
+            });
     }
-    
+
     const formatTime = (date: Date) => {
         const year = date.getFullYear();
         const month = date.getMonth() + 1;

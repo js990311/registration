@@ -32,7 +32,7 @@ export default function LectureTable({lectures} : Readonly<{ lectures: Lecture[]
                         />
                     </td>
                     <td>
-                        <a href={`${lecture.lectureId}`}>
+                        <a href={`/lectures/${lecture.lectureId}`}>
                             {lecture.name}
                         </a>
                     </td>

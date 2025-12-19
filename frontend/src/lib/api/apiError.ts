@@ -1,6 +1,6 @@
 import {ExceptionDetail} from "@/src/type/error/exceptionDetail";
 
-export class BaseError extends Error{
+class BaseError extends Error{
     readonly details: ExceptionDetail;
 
     constructor(details: ExceptionDetail) {
@@ -30,7 +30,7 @@ export function networkException(instance: string, cause?: unknown): NetworkErro
     return new NetworkError({
         type: 'NETWORK_ERROR',
         title: 'Network Error',
-        status: 0,
+        status: 500,
         instance,
         detail:
             cause instanceof Error
@@ -60,4 +60,8 @@ export function unexpectedException(instance: string, cause?: unknown): Unexpect
                 ? cause.message
                 : '알 수 없는 오류가 발생했습니다.',
     })
+}
+
+export function errorToString(prefix: string, error: ExceptionDetail): string {
+    return `(${error.type}) [${prefix} in ${error.instance}] ${error.title} : ${error.detail}`;
 }

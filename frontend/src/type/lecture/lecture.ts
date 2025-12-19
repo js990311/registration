@@ -6,4 +6,10 @@ type Lecture = {
     credit: number;
 }
 
+export type CreateLectureRequest = {
+    name: string;
+    capacity: number;
+    credit: number;
+}
+
 export default Lecture;

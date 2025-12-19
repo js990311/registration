@@ -1,18 +1,18 @@
 "use client"
 
 import RegistrationLectureList from "@/src/components/lectures/RegistrationLectureList";
-import {useEffect, useRef, useState} from "react";
-import {Pagination} from "@/src/type/pagination/pagination";
+import {useEffect, useMemo, useState} from "react";
 import {RegistrationLecture} from "@/src/type/registration/registration";
 import {Student} from "@/src/type/student/student";
 import styles from './StudentMe.module.css';
 import clsx from "clsx";
+import toast from "react-hot-toast";
+import {errorToString} from "@/src/lib/api/apiError";
+import {studentMeAction, studentMeRegistrationAction} from "@/src/action/myPageAction";
 
 export default function StudentsMyPage(){
     const [lectures, setLectures] = useState<RegistrationLecture[]>([]);
     const [student, setStudent] = useState<Student>();
-    const credits = useRef<number>(0);
-    const remainingCredits = useRef<number>(0);
 
     const onUnenroll = (registrationId: number) => {
         setLectures(pre => pre.filter(
@@ -21,33 +21,41 @@ export default function StudentsMyPage(){
     }
 
     const fetchLectures = async () => {
-        const response = await fetch(`/api/students/me/registrations`);
-        if (response.status === 200) {
-            const lectures: Pagination<RegistrationLecture> = await response.json();
-            setLectures(lectures.data);
-        }
+        studentMeRegistrationAction()
+            .then(resp => {
+                if(resp.success){
+                    setLectures(resp.data);
+                }else {
+                    toast.error(errorToString("", resp.error));
+                }
+            })
     }
 
     const fetchStudent = async () => {
-        const response = await fetch(`/api/students/me`);
-        if (response.status === 200) {
-            const student: Student = await response.json();
-            setStudent(student);
-        }
+        studentMeAction().then(
+            resp => {
+                if(resp.success){
+                    setStudent(resp.data);
+                }else {
+                    toast.error(errorToString("", resp.error));
+                }
+            }
+        )
     }
-
 
     useEffect(() => {
         fetchLectures();
         fetchStudent();
     }, []);
 
-    useEffect(() => {
-        credits.current = lectures.reduce((sum,lecture) => sum + (lecture.credit ?? 0),0);
+    const credits = useMemo(()=>{
+        return lectures.reduce((sum,lecture) => sum + (lecture.credit ?? 0),0);;
+    }, [lectures]);
+    const remainingCredits = useMemo(() => {
         if (student?.creditLimit){
-            remainingCredits.current = student.creditLimit - credits.current;
-        }
-    }, [lectures, student]);
+            return student.creditLimit - credits;
+        }return 0;
+    }, [student, credits]);
 
     return (
         <div>
@@ -57,7 +65,7 @@ export default function StudentsMyPage(){
                 </div>
                 <div className={styles.creditLine}>
                     <span className={styles.label}>현재 수강한 학점 : </span>
-                    <span className={styles.value}>{credits.current}</span>
+                    <span className={styles.value}>{credits}</span>
                 </div>
                 <div className={styles.creditLine}>
                     <span className={styles.label}>최대 수강신청학점 : </span>
@@ -66,9 +74,9 @@ export default function StudentsMyPage(){
                 <div className={styles.creditLine}>
                     <span className={clsx(styles.label, styles.remainingCredit)}>남은 학점 : </span>
                     <span className={clsx(styles.value, {
-                        [styles.statusPositive]: remainingCredits.current !== 0,
-                        [styles.statusNegative]: remainingCredits.current === 0
-                    })}>{remainingCredits.current}</span>
+                        [styles.statusPositive]: remainingCredits !== 0,
+                        [styles.statusNegative]: remainingCredits === 0
+                    })}>{remainingCredits}</span>
                 </div>
 
             </div>

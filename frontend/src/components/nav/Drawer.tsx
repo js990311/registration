@@ -2,8 +2,6 @@
 import styles from "./Navigation.module.css"
 import clsx from "clsx";
 
-import {useState} from "react";
-
 type DrawerType = {
     children: React.ReactNode;
     isOpen: boolean;

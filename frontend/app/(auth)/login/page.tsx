@@ -3,12 +3,13 @@
 import styles from './loginPage.module.css'
 import {useState} from "react";
 import {useRouter} from "next/navigation";
-import {ProblemResponse} from "@/src/type/error/error";
 import useLoginStore from "@/src/stores/useLoginStore";
 import {Card} from "@/src/components/Card/Card";
 import {Button} from "@/src/components/button/Button";
 import {FloatingLabelInput} from "@/src/components/Input/FloatingLabelInput";
 import toast from "react-hot-toast";
+import {ActionErrorResponse} from "@/src/type/response/actionResponse";
+import {errorToString} from "@/src/lib/api/apiError";
 
 export default function LoginPage() {
     const [username, setUsername] = useState("");
@@ -30,7 +31,6 @@ export default function LoginPage() {
             return;
         }
 
-
         const resp = await fetch("/api/login", {
             method: "POST",
             headers: {
@@ -43,9 +43,11 @@ export default function LoginPage() {
         });
 
         if(resp.status !== 200){
-            const json:{success:boolean, problem: ProblemResponse} = await resp.json();
-            toast.error(json.problem.detail);
+            const {success, error}:ActionErrorResponse = await resp.json();
+            toast.error(errorToString("",error));
+            setError(errorToString("",error));
         }else{
+            toast.success("Login successfully");
             login();
             router.push("/");
         }

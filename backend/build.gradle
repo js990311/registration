@@ -61,7 +61,7 @@ tasks.named('test') {
 }
 
 openapi3{
-	server  = 'http://localhost:8080/'
+	server  = 'http://localhost:8080/api'
 	title = "registration"
 	description = "수강신청시스템"
 	version="1.0.0"

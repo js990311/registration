@@ -1,16 +1,15 @@
 "use client"
 
 import styles from './pagination.module.css'
-import {Pagination} from "@/src/type/pagination/pagination";
-import Link from "next/link";
 import clsx from "clsx";
 import {Button} from "@/src/components/button/Button";
 import { MdOutlineKeyboardDoubleArrowLeft, MdOutlineKeyboardDoubleArrowRight, MdOutlineKeyboardArrowLeft, MdOutlineKeyboardArrowRight  } from "react-icons/md";
 import { HiDotsHorizontal } from "react-icons/hi";
 import {useState} from "react";
+import {PaginationInfo} from "@/src/type/response/pagination";
 
 type PaginationControllerProps = {
-    pagination : Pagination<any>,
+    pagination : PaginationInfo,
     onHandlePage: (page : number, size: number) => void,
 }
 
@@ -41,9 +40,9 @@ const PaginationPageInput = ({totalPage} : { totalPage:number }) => {
 }
 
 export default function PaginationController({pagination, onHandlePage}: Readonly<PaginationControllerProps>) {
-    const minPage = Math.floor((pagination.pageNumber-1) / 10) * 10 + 1;
-    const maxPage = Math.min(pagination.totalPage, minPage+9);
-    const size = pagination.pageSize;
+    const minPage = pagination.blockLeft;
+    const maxPage = pagination.blockRight;
+    const size = pagination.requestSize;
 
     const pages: number[] = Array.from({ length: maxPage - minPage + 1 }).map((_, i) => minPage + i);
 
@@ -54,7 +53,7 @@ export default function PaginationController({pagination, onHandlePage}: Readonl
                     className={clsx(styles.paginationSelect)}
                     name={"pagination-size"}
                     id="pagination-size"
-                    value={pagination.pageSize}
+                    value={pagination.requestSize}
                     onChange={(e) => {
                         const newSize = parseInt(e.target.value);
                         onHandlePage(1, newSize);
@@ -93,7 +92,7 @@ export default function PaginationController({pagination, onHandlePage}: Readonl
                         >
                             <Button
                                 className={clsx(styles.paginationButton, {
-                                    [styles.currentPage]: page === pagination.pageNumber
+                                    [styles.currentPage]: page === pagination.requestNumber
                                 })}
                                 onClick={() => onHandlePage(page, size)}>
                                 {page}

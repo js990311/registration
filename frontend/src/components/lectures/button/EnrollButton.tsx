@@ -1,11 +1,14 @@
 "use client"
 
-import {useEnroll} from "@/src/hooks/registrationHook";
 import toast from "react-hot-toast";
-import {useEffect} from "react";
+import {useState} from "react";
 import {Button} from "@/src/components/button/Button";
 import styles from "./EnrollButton.module.css"
 import clsx from "clsx";
+import {CreateRegistrationRequest, CreateRegistrationResponse} from "@/src/type/registration/registration";
+import {ActionOneResponse} from "@/src/type/response/actionResponse";
+import {errorToString} from "@/src/lib/api/apiError";
+import {registration} from "@/src/action/registrationAction";
 
 type EnrollButtonPageProps = {
     lectureId: number,
@@ -13,18 +16,25 @@ type EnrollButtonPageProps = {
 }
 
 export default function EnrollButton({lectureId, disabled} : Readonly<EnrollButtonPageProps>) {
-    const {
-        error, success, loading,
-        onEnroll
-    } = useEnroll();
+    const [loading, setLoading] = useState<boolean>(false);
 
-    useEffect(() => {
-        if(!success && error) {
-            toast.error(error);
-        }else if(success){
-            toast.success('수강 신청 성공');
-        }
-    }, [success, loading, error]);
+    const onEnroll = async (lectureId:number) => {
+        setLoading(true);
+        const request: CreateRegistrationRequest = {
+            lectureId: lectureId,
+        };
+
+        registration(request)
+            .then(resp => {
+                setLoading(false);
+                if(resp.success){
+                    toast.success("수강신청 성공");
+                }else {
+                    toast.error(errorToString("", resp.error));
+                }
+            })
+        ;
+    }
 
     return (
         <div>

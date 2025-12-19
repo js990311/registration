@@ -2,13 +2,14 @@
 
 import {useState} from "react";
 import {useRouter} from "next/navigation";
-import {ProblemResponse} from "@/src/type/error/error";
 import useLoginStore from "@/src/stores/useLoginStore";
 import {FloatingLabelInput} from "@/src/components/Input/FloatingLabelInput";
 import {Button} from "@/src/components/button/Button";
 import styles from "@/app/(auth)/login/loginPage.module.css";
 import {Card} from "@/src/components/Card/Card";
 import toast from "react-hot-toast";
+import {ActionErrorResponse} from "@/src/type/response/actionResponse";
+import {errorToString} from "@/src/lib/api/apiError";
 
 export default function signUpPage() {
     const [username, setUsername] = useState("");
@@ -42,9 +43,11 @@ export default function signUpPage() {
         });
 
         if(resp.status !== 201){
-            const json:{success:boolean, problem: ProblemResponse} = await resp.json();
-            toast.error(json.problem.detail);
+            const {success, error}:ActionErrorResponse = await resp.json();
+            toast.error(errorToString("",error));
+            setError(errorToString("",error));
         }else{
+            toast.success("Sign up successfully");
             login();
             router.push("/");
         }

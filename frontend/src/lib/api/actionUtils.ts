@@ -1,17 +1,17 @@
-import {BaseApiError, unexpectedException} from "@/src/lib/api/apiError";
+import {BaseApiError, errorToString, unexpectedException} from "@/src/lib/api/apiError";
 import {ApiOneResponse, ApiPageResponse} from "@/src/type/response/apiResponse";
 import {ActionErrorResponse, ActionOneResponse, ActionPageResponse} from "@/src/type/response/actionResponse";
 
 export async function actionCatch(instance:string, error: unknown): Promise<ActionErrorResponse>{
     if(error instanceof BaseApiError){
-        console.error(`[Action Error in ${error.details.instance}] ${error.details.title} : ${error.details.detail}`);
+        console.error(errorToString('Action Error', error.details));
         return {
             success: false,
             error: error.details
         }
     }else {
         const exception = unexpectedException(instance, error);
-        console.error(`[Unexpected Error in ${exception.details.instance}] ${exception.details.title} : `, error);
+        console.error(errorToString('Action Error', exception.details), error);
         return {
             success: false,
             error: exception.details
@@ -35,5 +35,5 @@ export async function actionPageWrapper<T>(response: ApiPageResponse<T>): Promis
 }
 
 export async function actionVoidWrapper(response: ApiOneResponse<void>): Promise<ActionOneResponse<void>> {
-    return {success: true, data: response.data};
+    return {success: true, data: response.data };
 }
