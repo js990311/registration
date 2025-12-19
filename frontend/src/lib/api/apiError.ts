@@ -9,17 +9,18 @@ export class BaseError extends Error{
     }
 }
 
-export class BusinessError extends BaseError {
+export class BaseApiError extends BaseError {}
+
+export class BusinessError extends BaseApiError {
 }
 
-export class HttpError extends BaseError {
+export class HttpError extends BaseApiError {
 }
 
-export class NetworkError extends BaseError {
+export class NetworkError extends BaseApiError {
 }
 
-export class UnknownException extends BaseError {
-}
+export class UnexpectedException extends BaseError {}
 
 export function businessError(details: ExceptionDetail): BusinessError {
     return new BusinessError(details);
@@ -48,7 +49,7 @@ export function httpException(instance: string, status: number): HttpError {
     })
 }
 
-export function unknownException(instance: string, cause?: unknown): UnknownException {
+export function unexpectedException(instance: string, cause?: unknown): UnexpectedException {
     return new HttpError({
         type: 'UNKNOWN_ERROR',
         title: 'Unknown Error',

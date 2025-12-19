@@ -6,7 +6,7 @@ export interface ApiOneResponse<T>{
 }
 
 export interface ApiPageResponse<T>{
-    data: T;
+    data: T[];
     pagination:PaginationInfo;
 }
 
