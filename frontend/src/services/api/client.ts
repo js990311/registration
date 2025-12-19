@@ -1,7 +1,7 @@
 import {NextResponse} from "next/server";
 import {ProblemResponse} from "@/src/type/error/error";
 import {Tokens} from "@/src/type/auth/tokens";
-import {getAccessToken, getRefreshToken, setTokens} from "@/src/utils/tokenUtils";
+import {getAccessToken, getRefreshToken, setTokens} from "@/src/lib/api/tokenUtils";
 
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE';
 

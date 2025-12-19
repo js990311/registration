@@ -1,6 +1,6 @@
 import {NextRequest, NextResponse} from "next/server";
 import {cookies} from "next/headers";
-import {getAccessToken} from "@/src/utils/tokenUtils";
+import {getAccessToken} from "@/src/lib/api/tokenUtils";
 
 export async function GET(req : NextRequest){
     const access_token = await getAccessToken();

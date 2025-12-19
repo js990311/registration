@@ -2,7 +2,7 @@ import {NextRequest, NextResponse} from "next/server";
 import {ProblemResponse} from "@/src/type/error/error";
 import {Tokens} from "@/src/type/auth/tokens";
 import {cookies} from "next/headers";
-import {setTokens} from "@/src/utils/tokenUtils";
+import {setTokens} from "@/src/lib/api/tokenUtils";
 
 export async function POST(req: NextRequest){
     const HOST = process.env.BACKEND_HOST || 'http://localhost:8080';
