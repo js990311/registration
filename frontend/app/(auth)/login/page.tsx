@@ -2,7 +2,7 @@
 
 import styles from './loginPage.module.css'
 import {useState} from "react";
-import {useRouter} from "next/navigation";
+import {useRouter, useSearchParams} from "next/navigation";
 import useLoginStore from "@/src/stores/useLoginStore";
 import {Card} from "@/src/components/Card/Card";
 import {Button} from "@/src/components/button/Button";
@@ -17,6 +17,8 @@ export default function LoginPage() {
     const [error, setError] = useState("");
     const router = useRouter();
     const login = useLoginStore((state) => state.login);
+    const searchParams = useSearchParams();
+    const redirectUrl = searchParams.get('redirect') || '';
 
     const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
@@ -49,7 +51,7 @@ export default function LoginPage() {
         }else{
             toast.success("Login successfully");
             login();
-            router.push("/");
+            router.push(redirectUrl);
         }
     }
 
