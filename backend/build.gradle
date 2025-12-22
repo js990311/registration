@@ -54,6 +54,18 @@ dependencies {
 
 	// actuator
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+	// OpenTelemetry Bridge (Brave 대신 사용)
+	implementation 'io.micrometer:micrometer-tracing-bridge-otel'
+
+	// OTLP Exporter (Tempo로 데이터를 쏘는 역할)
+	implementation 'io.opentelemetry:opentelemetry-exporter-otlp'
+
+	// aop
+	implementation 'org.springframework.boot:spring-boot-starter-aop:3.5.9'
+
+	// jdbc에 대한 trace 적용
+	implementation 'net.ttddyy.observation:datasource-micrometer-spring-boot:1.2.1'
 }
 
 tasks.named('test') {

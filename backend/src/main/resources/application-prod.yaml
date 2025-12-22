@@ -29,5 +29,15 @@ springdoc:
   swagger-ui:
     url: /docs/openapi3.yaml
 
+management:
+  otlp:
+    tracing:
+      endpoint: ${TEMPO_ENDPOINT} # Tempo의 HTTP 수신 포트
+  tracing:
+    sampling:
+      probability: 0.1
+
+
+
 jwt:
   secret-key: ${JWT_SECRET_KEY}

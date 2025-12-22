@@ -26,5 +26,13 @@ springdoc:
   swagger-ui:
     url: /docs/openapi3.yaml
 
+management:
+  otlp:
+    tracing:
+      endpoint: ""
+  tracing:
+    sampling:
+      probability: 0
+
 jwt:
   secret-key: Gl2Skb6wkkiX0cRUQptpZfm/JdE1ivSIboP2wrpqN7Q=

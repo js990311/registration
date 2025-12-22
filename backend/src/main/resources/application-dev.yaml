@@ -22,6 +22,7 @@ spring:
     web:
       pageable:
         one-indexed-parameters: true
+        serialization-mode: via-dto
 
 springdoc:
   api-docs:
@@ -31,3 +32,12 @@ springdoc:
 
 jwt:
   secret-key: ${JWT_SECRET_KEY}
+
+management:
+  otlp:
+    tracing:
+      endpoint: "http://localhost:4318/v1/traces" # Tempo의 HTTP 수신 포트
+  tracing:
+    sampling:
+      probability: 1.0 # 1.0은 모든 요청을 추적함 (개발용). 운영은 0.1(10%) 등으로 조절 권장.
+

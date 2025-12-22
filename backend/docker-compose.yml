@@ -16,6 +16,31 @@ services:
       interval: 1m
       timeout: 5s
       retries: 3
+  tempo:
+    image: grafana/tempo:latest
+    container_name: tempo
+    command: [ "-config.file=/etc/tempo.yaml" ]
+    volumes:
+      - ./docker/tempo/tempo-config.yaml:/etc/tempo.yaml
+    ports:
+      - "4317:4317"  # OTLP gRPC
+      - "4318:4318"  # OTLP HTTP
+      - "3200:3200"  # Tempo internal
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3003:3000"
+    volumes:
+      # Tempo를 데이터소스로 자동 등록하는 설정 파일
+      - ./docker/grafana/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
+    environment:
+      - GF_AUTH_ANONYMOUS_ENABLED=true      # 로그인 없이 접근 허용
+      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
+      - GF_AUTH_DISABLE_LOGIN_FORM=true
+    depends_on:
+      - tempo
 
   registration-1:
     container_name: registration-1
@@ -30,6 +55,7 @@ services:
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      TEMPO_ENDPOINT: ${TEMPO_ENDPOINT}
     depends_on:
       mariadb:
         condition: service_healthy
@@ -54,6 +80,7 @@ services:
       DB_USERNAME: ${DB_USERNAME}
       DB_PASSWORD: ${DB_PASSWORD}
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
+      TEMPO_ENDPOINT: ${TEMPO_ENDPOINT}
     depends_on:
       mariadb:
         condition: service_healthy
@@ -72,7 +99,7 @@ services:
     ports:
       - "8081:80"
     volumes:
-      - ./caddy/conf:/etc/caddy
+      - ./docker/caddy/conf:/etc/caddy
       - caddy_data:/data
       - caddy_config:/config
     depends_on:
