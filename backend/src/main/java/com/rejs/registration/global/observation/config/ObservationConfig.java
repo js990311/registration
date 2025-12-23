@@ -9,9 +9,13 @@ import org.springframework.context.annotation.Profile;
 
 @Configuration
 public class ObservationConfig {
+/*
+    // 사실 dev 환경에서도 trace를 볼 이유는 없다. 로그만 더러워질뿐
     @Profile("dev")
     @Bean
     public ObservationHandler<Observation.Context> observationHandler(){
         return new ObservationTextPublisher();
     }
+*/
 }
+

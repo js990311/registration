@@ -66,6 +66,10 @@ dependencies {
 
 	// jdbc에 대한 trace 적용
 	implementation 'net.ttddyy.observation:datasource-micrometer-spring-boot:1.2.1'
+
+	// loki
+	implementation 'com.github.loki4j:loki-logback-appender:1.5.1'
+	implementation 'net.logstash.logback:logstash-logback-encoder:7.4'
 }
 
 tasks.named('test') {

@@ -21,6 +21,7 @@ import com.rejs.registration.global.problem.ProblemCode;
 import com.rejs.registration.global.response.PageResponse;
 import com.rejs.token_starter.token.ClaimsDto;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
+@Slf4j
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 @Service
@@ -47,22 +49,26 @@ public class RegistrationService {
         Lecture lecture = lectureRepository.findByIdWithLock(request.getLectureId()).orElseThrow(LectureBusinessException::lectureNotFound);
 
         if(registrationRepository.isAlreadyRegistered(lecture.getId(), student.getId())){
+            log.info("[Registration.Failed] Already Registered - Student : {}, Lecture : {}", student.getId(), lecture.getId());
             throw RegistrationBusinessException.alreadyRegistration();
         }
 
         if(!lecture.hasCapacity()){
+            log.info("[Registration.Failed] lectureAlreadyFull - Student : {}, Lecture : {}, CurrentCount : {}, Capacity : {}", student.getId(), lecture.getId(), lecture.getStudentCount(), lecture.getCapacity());
             throw RegistrationBusinessException.lectureAlreadyFull("현 수강인원 : " + lecture.getStudentCount());
         }
 
         // 학생의 최대 수강신청 학점을 초과하는 지
         Integer sumCredits = registrationRepository.sumCredit(student.getId());
         if (sumCredits!= null && sumCredits + lecture.getCredit() > student.getCreditLimit()){
+            log.info("[Registration.Failed] CREDIT_EXCEEDED - Student: {}, Credit Limit : {}, Sum Credid: {}", student.getId(), student.getCreditLimit(), sumCredits);
             throw new RegistrationBusinessException(ProblemCode.CREDIT_EXCEEDED);
         }
 
         Registration registration = new Registration(student, lecture);
         registration = registrationRepository.save(registration);
         lecture.increaseStudentCount();
+        log.info("[Registration.Success] Enroll - Student {} enrolled in lecture {}", student.getId(), lecture.getId());
         return CreateRegistrationResponse.from(registration);
     }
 
@@ -83,6 +89,7 @@ public class RegistrationService {
         Registration registration = registrationRepository.findByStudentAndLecture(student, lecture).orElseThrow(RegistrationBusinessException::registrationNotFound);
 
         lecture.decreaseStudentCount();
+        log.info("[Registration.Cancel.Success] Cancel Success - Student {} cancel lecture {}", student.getId(), lecture.getId());
         registrationRepository.delete(registration);
     }
 }

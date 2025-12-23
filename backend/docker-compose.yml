@@ -27,20 +27,32 @@ services:
       - "4318:4318"  # OTLP HTTP
       - "3200:3200"  # Tempo internal
 
+  loki:
+    image: grafana/loki
+    container_name: loki
+    ports:
+      - "3100:3100" # 배포시에는 포트를 외부에 노출하지 말 것
+
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
     ports:
       - "3003:3000"
     volumes:
-      # Tempo를 데이터소스로 자동 등록하는 설정 파일
       - ./docker/grafana/grafana-datasources.yaml:/etc/grafana/provisioning/datasources/datasources.yaml
+      - grafana-data:/var/lib/grafana
     environment:
-      - GF_AUTH_ANONYMOUS_ENABLED=true      # 로그인 없이 접근 허용
-      - GF_AUTH_ANONYMOUS_ORG_ROLE=Admin
-      - GF_AUTH_DISABLE_LOGIN_FORM=true
+      - GF_AUTH_ANONYMOUS_ENABLED=false      # 익명접근 거부
+      - GF_AUTH_DISABLE_LOGIN_FORM=false # 로그인 화면
+      # 관리자 정보
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=password
+      # 회원가입 금지
+      - GF_USERS_ALLOW_SIGN_UP=false
     depends_on:
       - tempo
+      - loki
+
 
   registration-1:
     container_name: registration-1
@@ -110,3 +122,4 @@ services:
 volumes:
   caddy_data:
   caddy_config:
+  grafana-data:

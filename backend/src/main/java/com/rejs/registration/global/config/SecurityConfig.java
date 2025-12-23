@@ -3,6 +3,7 @@ package com.rejs.registration.global.config;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rejs.registration.domain.student.repository.StudentRepository;
 import com.rejs.registration.global.authentication.UserDetailServiceImpl;
+import com.rejs.registration.global.observation.filter.AuthenticationLoggingFilter;
 import com.rejs.token_starter.config.JwtProperties;
 import com.rejs.token_starter.filter.JwtAuthenticationFilter;
 import com.rejs.token_starter.token.JwtUtils;
@@ -49,6 +50,11 @@ public class SecurityConfig {
     }
 
     @Bean
+    public AuthenticationLoggingFilter authenticationLoggingFilter(){
+        return new AuthenticationLoggingFilter();
+    }
+
+    @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
@@ -68,6 +74,7 @@ public class SecurityConfig {
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/docs/**").permitAll()                        .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .addFilterBefore(authenticationLoggingFilter(), JwtAuthenticationFilter.class)
                 .exceptionHandling(handler -> handler
                         .authenticationEntryPoint(((request, response, ex) -> {
                             handlerExceptionResolver.resolveException(request,response, null,ex);

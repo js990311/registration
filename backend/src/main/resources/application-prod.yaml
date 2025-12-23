@@ -15,7 +15,6 @@ spring:
       ddl-auto: update
     properties:
       hibernate:
-        format_sql: true
         dialect: org.hibernate.dialect.MariaDBDialect
     open-in-view: false
   data:
@@ -37,7 +36,19 @@ management:
     sampling:
       probability: 0.1
 
-
-
 jwt:
   secret-key: ${JWT_SECRET_KEY}
+
+jdbc:
+  datasource-proxy:
+    logging: slf4j
+    multiline: false
+    slow-query:
+      enable-logging: true
+      log-level: WARN
+      logger-name: slow-query-logger
+      threshold: 2 # 2초이상걸리면 slow
+
+logging:
+  level:
+    slow-query-logger: WARN
