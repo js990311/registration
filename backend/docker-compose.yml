@@ -33,6 +33,22 @@ services:
     ports:
       - "3100:3100" # 배포시에는 포트를 외부에 노출하지 말 것
 
+  prometheus:
+    image: prom/prometheus
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./docker/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.retention.time=15d' # 데이터 보관 기간 설정 (선택 사항)
+    depends_on:
+      registration-1:
+        condition: service_healthy
+      registration-2:
+        condition: service_healthy
+
   grafana:
     image: grafana/grafana:latest
     container_name: grafana
@@ -53,12 +69,9 @@ services:
       - tempo
       - loki
 
-
   registration-1:
     container_name: registration-1
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: registration-app
     ports:
       - 8082:8080
     environment:
@@ -68,6 +81,7 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
       TEMPO_ENDPOINT: ${TEMPO_ENDPOINT}
+      LOKI_URL: ${LOKI_URL}
     depends_on:
       mariadb:
         condition: service_healthy
@@ -81,9 +95,7 @@ services:
 
   registration-2:
     container_name: registration-2
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: registration-app
     ports:
       - 8083:8080
     environment:
@@ -93,6 +105,7 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       JWT_SECRET_KEY: ${JWT_SECRET_KEY}
       TEMPO_ENDPOINT: ${TEMPO_ENDPOINT}
+      LOKI_URL: ${LOKI_URL}
     depends_on:
       mariadb:
         condition: service_healthy

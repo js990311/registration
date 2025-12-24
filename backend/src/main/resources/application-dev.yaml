@@ -4,7 +4,7 @@ server:
 
 spring:
   application:
-    name: registration
+    name: registration-dev
   datasource:
     url: jdbc:mariadb://localhost:3306/${DB_NAME}
     username: ${DB_USERNAME}
@@ -39,6 +39,10 @@ management:
   tracing:
     sampling:
       probability: 1.0 # 1.0은 모든 요청을 추적함 (개발용). 운영은 0.1(10%) 등으로 조절 권장.
+  endpoints:
+    web:
+      exposure:
+        include: "prometheus, health"
 
 jdbc:
   datasource-proxy:

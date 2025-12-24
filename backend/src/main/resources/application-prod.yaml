@@ -4,7 +4,7 @@ server:
 
 spring:
   application:
-    name: registration
+    name: registration-prod
   datasource:
     url: jdbc:mariadb://${DB_HOST}/${DB_NAME}
     username: ${DB_USERNAME}
@@ -35,6 +35,14 @@ management:
   tracing:
     sampling:
       probability: 0.1
+  endpoints:
+    web:
+      exposure:
+        include: "prometheus, health"
+  metrics:
+    distribution:
+      percentiles-histogram:
+        http.server.requests: true  # 이 부분이 있어야 histogram_quantile이 작동함
 
 jwt:
   secret-key: ${JWT_SECRET_KEY}
@@ -52,3 +60,7 @@ jdbc:
 logging:
   level:
     slow-query-logger: WARN
+
+loki:
+  url: ${LOKI_URL}
+

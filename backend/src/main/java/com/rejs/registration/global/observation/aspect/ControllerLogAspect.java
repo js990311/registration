@@ -56,6 +56,8 @@ public class ControllerLogAspect {
                         return "LOGIN REQUEST MASKED";
                     }else if(arg instanceof Pageable pageable){
                         return String.format("page: %d, size: %d",pageable.getPageNumber(), pageable.getPageSize());
+                    }else if(arg == null){
+                        return "NULL";
                     }
                     String str = arg.toString();
                     return str.length() > 500 ? str.substring(0,500) + "..." : str;
