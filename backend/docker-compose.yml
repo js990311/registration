@@ -1,3 +1,4 @@
+name: registration
 services:
   mariadb:
     image: mariadb:latest

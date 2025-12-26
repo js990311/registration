@@ -1,52 +1,51 @@
 package com.rejs.registration.global.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.nimbusds.jose.jwk.JWK;
+import com.nimbusds.jose.jwk.JWKSet;
+import com.nimbusds.jose.jwk.RSAKey;
+import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.rejs.registration.domain.student.repository.StudentRepository;
 import com.rejs.registration.global.authentication.UserDetailServiceImpl;
+import com.rejs.registration.global.authentication.token.TokenIssuer;
 import com.rejs.registration.global.observation.filter.AuthenticationLoggingFilter;
-import com.rejs.token_starter.config.JwtProperties;
-import com.rejs.token_starter.filter.JwtAuthenticationFilter;
-import com.rejs.token_starter.token.JwtUtils;
 import lombok.RequiredArgsConstructor;
-import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.Resource;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.converter.RsaKeyConverters;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.jwt.JwtEncoder;
+import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
+import org.springframework.security.oauth2.server.resource.web.authentication.BearerTokenAuthenticationFilter;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
+import java.io.IOException;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
 
 @RequiredArgsConstructor
 @Configuration
-@EnableConfigurationProperties({JwtProperties.class})
 public class SecurityConfig {
-    private final ObjectMapper mapper;
+    @Value("${spring.security.oauth2.resourceserver.jwt.private-key-location}")
+    private Resource privateKeyLocation;
+    @Value("${spring.security.oauth2.resourceserver.jwt.public-key-location}")
+    private Resource publicKeyLocation;
 
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
-    }
-
-    @Bean
-    public JwtUtils jwtUtils(JwtProperties properties) {
-        if (!StringUtils.hasText(properties.getSecretKey())) {
-            throw new IllegalArgumentException("Require jwt.secret-key in Properties");
-        } else {
-            return new JwtUtils(properties.getSecretKey(), properties.getAccessTokenExpiration(), properties.getRefreshTokenExpiration());
-        }
-    }
-
-    @Bean
-    public JwtAuthenticationFilter jwtAuthenticationFilter(JwtUtils jwtUtils) {
-        return new JwtAuthenticationFilter(jwtUtils);
     }
 
     @Bean
@@ -60,7 +59,7 @@ public class SecurityConfig {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http, JwtAuthenticationFilter jwtAuthenticationFilter, HandlerExceptionResolver handlerExceptionResolver) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http, HandlerExceptionResolver handlerExceptionResolver) throws Exception {
         http
                 .csrf(csrf->csrf.disable())
                 .formLogin(formLogin -> formLogin.disable())
@@ -73,8 +72,13 @@ public class SecurityConfig {
                         .requestMatchers("/actuator/health", "/actuator/prometheus").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**", "/docs/**").permitAll()                        .anyRequest().authenticated()
                 )
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .addFilterBefore(authenticationLoggingFilter(), JwtAuthenticationFilter.class)
+                .oauth2ResourceServer((oauth2) -> oauth2
+                        .jwt(Customizer.withDefaults())
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            handlerExceptionResolver.resolveException(request, response, null, authException);
+                        })
+                )
+                .addFilterBefore(authenticationLoggingFilter(), BearerTokenAuthenticationFilter.class)
                 .exceptionHandling(handler -> handler
                         .authenticationEntryPoint(((request, response, ex) -> {
                             handlerExceptionResolver.resolveException(request,response, null,ex);
@@ -90,5 +94,28 @@ public class SecurityConfig {
     @Bean
     public UserDetailsService userDetailsService(StudentRepository studentRepository){
         return new UserDetailServiceImpl(studentRepository);
+    }
+
+    @Bean
+    public JwtEncoder jwtEncoder() throws IOException {
+        RSAPrivateKey privateKey = RsaKeyConverters.pkcs8()
+                .convert(privateKeyLocation.getInputStream());
+        RSAPublicKey publicKey = RsaKeyConverters.x509().convert(publicKeyLocation.getInputStream());
+        JWK jwk = new RSAKey.Builder(publicKey).privateKey(privateKey).build();
+        return new NimbusJwtEncoder(new ImmutableJWKSet<>(new JWKSet(jwk)));
+    }
+    @Bean
+    public TokenIssuer tokenIssuer() throws IOException {
+        return new TokenIssuer(jwtEncoder());
+    }
+
+    @Bean
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+        JwtGrantedAuthoritiesConverter grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+        grantedAuthoritiesConverter.setAuthoritiesClaimName("role");
+        grantedAuthoritiesConverter.setAuthorityPrefix(""); // 넣을때 이미 ROLE_상태임
+        JwtAuthenticationConverter jwtAuthenticationConverter = new JwtAuthenticationConverter();
+        jwtAuthenticationConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
+        return jwtAuthenticationConverter;
     }
 }

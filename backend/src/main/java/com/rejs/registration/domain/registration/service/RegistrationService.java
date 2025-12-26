@@ -14,19 +14,11 @@ import com.rejs.registration.domain.registration.repository.RegistrationPeriodRe
 import com.rejs.registration.domain.registration.repository.RegistrationRepository;
 import com.rejs.registration.domain.student.exception.StudentBusinessException;
 import com.rejs.registration.domain.student.repository.StudentRepository;
-import com.rejs.registration.global.exception.BusinessException;
-import com.rejs.registration.global.exception.GlobalException;
-import com.rejs.registration.global.exception.NotFoundException;
 import com.rejs.registration.global.problem.ProblemCode;
-import com.rejs.registration.global.response.PageResponse;
-import com.rejs.token_starter.token.ClaimsDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -44,8 +36,8 @@ public class RegistrationService {
     private final LectureRepository lectureRepository;
 
     @Transactional
-    public CreateRegistrationResponse create(ClaimsDto claims, CreateRegistrationRequest request) {
-        Student student = studentRepository.findByIdWithLock(Long.parseLong(claims.getUsername())).orElseThrow(StudentBusinessException::studentNotFound);
+    public CreateRegistrationResponse create(Long userId, CreateRegistrationRequest request) {
+        Student student = studentRepository.findByIdWithLock(userId).orElseThrow(StudentBusinessException::studentNotFound);
         Lecture lecture = lectureRepository.findByIdWithLock(request.getLectureId()).orElseThrow(LectureBusinessException::lectureNotFound);
 
         if(registrationRepository.isAlreadyRegistered(lecture.getId(), student.getId())){
@@ -78,13 +70,13 @@ public class RegistrationService {
         return !periods.isEmpty();
     }
 
-    public Page<RegistrationLectureDto> findByStudentId(ClaimsDto claims, Pageable pageable) {
-        return registrationRepository.findByStudentId(Long.valueOf(claims.getUsername()), pageable);
+    public Page<RegistrationLectureDto> findByStudentId(Long userId, Pageable pageable) {
+        return registrationRepository.findByStudentId(userId, pageable);
     }
 
     @Transactional
-    public void cancel(ClaimsDto claims, Long id) {
-        Student student = studentRepository.findByIdWithLock(Long.parseLong(claims.getUsername())).orElseThrow(StudentBusinessException::studentNotFound);
+    public void cancel(Long userId, Long id) {
+        Student student = studentRepository.findByIdWithLock(userId).orElseThrow(StudentBusinessException::studentNotFound);
         Lecture lecture = lectureRepository.findByIdWithLock(id).orElseThrow(LectureBusinessException::lectureNotFound);
         Registration registration = registrationRepository.findByStudentAndLecture(student, lecture).orElseThrow(RegistrationBusinessException::registrationNotFound);
 

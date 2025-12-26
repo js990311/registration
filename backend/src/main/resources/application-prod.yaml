@@ -21,6 +21,12 @@ spring:
     web:
       pageable:
         one-indexed-parameters: true
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          public-key-location: classpath:key/jwt-public.pub
+          private-key-location: classpath:key/jwt-private.pem
 
 springdoc:
   api-docs:

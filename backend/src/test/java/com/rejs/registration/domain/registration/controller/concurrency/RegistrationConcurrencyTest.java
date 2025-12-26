@@ -1,20 +1,16 @@
 package com.rejs.registration.domain.registration.controller.concurrency;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rejs.registration.TestcontainersConfiguration;
 import com.rejs.registration.domain.entity.Lecture;
 import com.rejs.registration.domain.entity.RegistrationPeriod;
-import com.rejs.registration.domain.entity.Student;
 import com.rejs.registration.domain.lecture.repository.LectureRepository;
 import com.rejs.registration.domain.registration.dto.response.CreateRegistrationResponse;
 import com.rejs.registration.domain.registration.repository.RegistrationPeriodRepository;
 import com.rejs.registration.domain.registration.repository.RegistrationRepository;
 import com.rejs.registration.domain.student.repository.StudentRepository;
-import com.rejs.registration.domain.student.service.StudentService;
 import com.rejs.registration.global.authentication.AuthenticationService;
-import com.rejs.registration.global.authentication.LoginRequest;
-import com.rejs.token_starter.token.JwtUtils;
+import com.rejs.registration.global.authentication.dto.LoginRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +21,6 @@ import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.*;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -38,7 +33,6 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @ActiveProfiles("test")
 @Import(TestcontainersConfiguration.class)
@@ -65,9 +59,6 @@ public class RegistrationConcurrencyTest {
 
     @Autowired
     private AuthenticationService authenticationService;
-
-    @Autowired
-    private JwtUtils jwtUtils;
 
     @LocalServerPort
     private int port;
@@ -96,7 +87,7 @@ public class RegistrationConcurrencyTest {
         List<String> tokens = new ArrayList<>();
         for(int i=0;i<studentCount;i++){
             LoginRequest loginRequest = new LoginRequest("testusername" + i, "password");
-            tokens.add(authenticationService.signup(loginRequest).getAccessToken());
+            tokens.add(authenticationService.signup(loginRequest).getTokens().getAccessToken());
         }
 
         ExecutorService executorService = Executors.newFixedThreadPool(studentCount);

@@ -10,9 +10,7 @@ import com.rejs.registration.domain.registration.repository.RegistrationPeriodRe
 import com.rejs.registration.domain.registration.repository.RegistrationRepository;
 import com.rejs.registration.domain.student.repository.StudentRepository;
 import com.rejs.registration.global.authentication.AuthenticationService;
-import com.rejs.registration.global.authentication.LoginRequest;
-import com.rejs.token_starter.token.ClaimsDto;
-import com.rejs.token_starter.token.JwtUtils;
+import com.rejs.registration.global.authentication.dto.LoginRequest;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -61,9 +59,6 @@ public class RegistrationCreditLimitConcurrencyTest {
     @Autowired
     private AuthenticationService authenticationService;
 
-    @Autowired
-    private JwtUtils jwtUtils;
-
     @LocalServerPort
     private int port;
 
@@ -76,8 +71,9 @@ public class RegistrationCreditLimitConcurrencyTest {
     @Test
     void test() throws Exception {
         // g : 30개의 강의. 한명의 학생
-        LoginRequest loginRequest = new LoginRequest("user", "password");
-        String token = authenticationService.signup(loginRequest).getAccessToken();
+        String username = "username";
+        LoginRequest loginRequest = new LoginRequest(username, "password");
+        String token = authenticationService.signup(loginRequest).getTokens().getAccessToken();
 
         // 수강신청 기한 생성
         LocalDateTime start = LocalDateTime.now().minusDays(1);
@@ -133,9 +129,9 @@ public class RegistrationCreditLimitConcurrencyTest {
         startLatch.countDown();
         endLatch.await();
 
-        ClaimsDto claims = jwtUtils.getClaims(token);
         // t
+        Long studentId = studentRepository.findByName(username).get().getId();
         assertEquals(6 ,success.get());
-        assertEquals(18, registrationRepository.sumCredit(Long.valueOf(claims.getUsername())));
+        assertEquals(18, registrationRepository.sumCredit(studentId));
     }
 }

@@ -1,9 +1,7 @@
 package com.rejs.registration.global.observation.aspect;
 
-import com.rejs.registration.global.authentication.LoginRequest;
-import com.rejs.token_starter.token.ClaimsDto;
+import com.rejs.registration.global.authentication.dto.LoginRequest;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
@@ -42,7 +40,6 @@ public class ControllerLogAspect {
                 .filter(arg->{
                     if(arg instanceof HttpServletRequest
                             || arg instanceof HttpSession
-                            || arg instanceof ClaimsDto
                     ){
                         return false;
                     }else {

@@ -43,7 +43,6 @@ dependencies {
 	// security
 	implementation 'org.springframework.boot:spring-boot-starter-security'
 	testImplementation 'org.springframework.security:spring-security-test'
-	implementation 'com.github.js990311:token-starter:0.0.6'
 
 	// springdoc 연계를 위해
 	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0'
@@ -73,6 +72,12 @@ dependencies {
 
 	// prometheus
 	implementation 'io.micrometer:micrometer-registry-prometheus'
+
+	// jwt 인증을 위한 resource server
+	// resource server는 public key 바탕의 커스텀 JWT 인증을 지원한다. 놀랍게도.
+	// 발급기능은 커스텀으로 구현해야한다
+	implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
 
 tasks.named('test') {

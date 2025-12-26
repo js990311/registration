@@ -5,6 +5,7 @@ import com.epages.restdocs.apispec.HeaderDescriptorWithType;
 import com.rejs.registration.AbstractControllerTest;
 import com.rejs.registration.domain.entity.Student;
 import com.rejs.registration.domain.student.repository.StudentRepository;
+import com.rejs.registration.global.authentication.token.TokenIssuer;
 import com.rejs.registration.global.problem.ProblemCode;
 import com.rejs.token_starter.token.JwtUtils;
 import org.junit.jupiter.api.BeforeEach;
@@ -13,8 +14,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.servlet.ResultActions;
 
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -31,17 +34,18 @@ class StudentControllerTest extends AbstractControllerTest {
     private StudentRepository studentRepository;
 
     @Autowired
-    private JwtUtils jwtUtils;
+    private TokenIssuer tokenIssuer;
 
     private String studentToken;
     private Student student1;
 
     String name = "동시성";
+
     @BeforeEach
     void setUp() throws Exception {
         student1 = new Student("student1");
         student1 = studentRepository.save(student1);
-        studentToken = jwtUtils.generateToken(student1.getId().toString(), "ROLE_USER").getAccessToken();
+        studentToken = tokenIssuer.issue(student1.getId().toString(), List.of(new SimpleGrantedAuthority("ROLE_USER"))).getAccessToken();
 
     }
 

@@ -4,7 +4,6 @@ import com.epages.restdocs.apispec.*;
 import com.rejs.registration.AbstractControllerTest;
 import com.rejs.registration.domain.student.repository.StudentRepository;
 import com.rejs.registration.global.problem.ProblemCode;
-import com.rejs.token_starter.token.Tokens;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,8 +47,9 @@ class AuthenticationControllerTest extends AbstractControllerTest {
         );
         result
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.accessToken").isString())
-                .andExpect(jsonPath("$.data.refreshToken").isString())
+                .andExpect(jsonPath("$.data.username").isString())
+                .andExpect(jsonPath("$.data.tokens.accessToken").isString())
+                .andExpect(jsonPath("$.data.tokens.accessTokenExpiresAt").isNumber())
         ;
 
         result
@@ -82,8 +82,9 @@ class AuthenticationControllerTest extends AbstractControllerTest {
         );
         result
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.data.accessToken").isString())
-                .andExpect(jsonPath("$.data.refreshToken").isString())
+                .andExpect(jsonPath("$.data.username").isString())
+                .andExpect(jsonPath("$.data.tokens.accessToken").isString())
+                .andExpect(jsonPath("$.data.tokens.accessTokenExpiresAt").isNumber())
         ;
 
         result.andDo(
@@ -141,82 +142,19 @@ class AuthenticationControllerTest extends AbstractControllerTest {
         ;
     }
 
-    @Test
-    void refresh() throws Exception {
-        String username = "username";
-        String password = "password";
-        Tokens tokens = authenticationService.signup(new LoginRequest(username, password));
-
-        ResultActions result = mockMvc.perform(get("/refresh")
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", "Bearer " + tokens.getRefreshToken())
-        );
-
-        result
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.data.accessToken").isString())
-                .andExpect(jsonPath("$.data.refreshToken").isString())
-        ;
-
-        result.andDo(
-                document(builder -> builder
-                        .responseFields(
-                                data(tokensFields())
-                        )
-                )
-        );
-    }
-
-    @Test
-    void refreshButNotRefreshToken() throws Exception {
-        String username = "username";
-        String password = "password";
-        Tokens tokens = authenticationService.signup(new LoginRequest(username, password));
-
-        ResultActions result = mockMvc.perform(get("/refresh")
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", "Bearer " + tokens.getAccessToken())
-        );
-
-        andExpectException(result, ProblemCode.REFRESH_TOKEN_REQUIRED, "/refresh");
-
-        result.andDo(
-                document(builder -> builder
-                        .responseFields(
-                                problemFields()
-                        )
-                )
-        );
-    }
-
-    @Test
-    void refreshButNoToken() throws Exception {
-        ResultActions result = mockMvc.perform(get("/refresh")
-                .contentType(MediaType.APPLICATION_JSON)
-        );
-
-        andExpectException(result, ProblemCode.REFRESH_TOKEN_REQUIRED, "/refresh");
-
-        result.andDo(
-                document(builder -> builder
-                        .responseFields(
-                                problemFields()
-                        )
-                )
-        );
-    }
-
-
 
     // 문서화
     public FieldDescriptors tokensFields(){
         return new FieldDescriptors(
-                fieldWithPath("accessToken")
+                fieldWithPath("username")
+                        .description("유저이름")
+                                .type(JsonFieldType.STRING),
+                fieldWithPath("tokens.accessToken")
                         .description("액세스토큰")
                         .type(JsonFieldType.STRING),
-                fieldWithPath("refreshToken")
-                        .description("리프레스토큰")
-                        .type(JsonFieldType.STRING)
+                fieldWithPath("tokens.accessTokenExpiresAt")
+                        .description("액세스토큰 만료기한")
+                        .type(JsonFieldType.NUMBER)
         );
     }
 

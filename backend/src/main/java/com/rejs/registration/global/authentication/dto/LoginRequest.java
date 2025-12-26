@@ -1,4 +1,4 @@
-package com.rejs.registration.global.authentication;
+package com.rejs.registration.global.authentication.dto;
 
 import lombok.Getter;
 

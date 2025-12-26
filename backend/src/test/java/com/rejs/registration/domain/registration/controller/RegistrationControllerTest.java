@@ -13,8 +13,8 @@ import com.rejs.registration.domain.registration.repository.RegistrationReposito
 import com.rejs.registration.domain.registration.service.RegistrationService;
 import com.rejs.registration.domain.student.dto.request.CreateStudentRequest;
 import com.rejs.registration.domain.student.repository.StudentRepository;
+import com.rejs.registration.global.authentication.token.TokenIssuer;
 import com.rejs.registration.global.problem.ProblemCode;
-import com.rejs.token_starter.token.JwtUtils;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -25,11 +25,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.restdocs.payload.JsonFieldType;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -53,7 +55,7 @@ class RegistrationControllerTest extends AbstractControllerTest {
     private RegistrationPeriodRepository periodRepository;
 
     @Autowired
-    private JwtUtils jwtUtils;
+    private TokenIssuer tokenIssuer;
 
     private Long lectureId = 1L;
     private Long lecture2Id;
@@ -80,17 +82,17 @@ class RegistrationControllerTest extends AbstractControllerTest {
         Student student1 = new Student("student1");
         student1 = studentRepository.save(student1);
         student1Id = student1.getId();
-        student1Token = jwtUtils.generateToken(student1.getId().toString(), "ROLE_USER").getAccessToken();
+        student1Token = tokenIssuer.issue(student1.getId().toString(), List.of(new SimpleGrantedAuthority("ROLE_USER"))).getAccessToken();
 
         Student student2 = new Student("student2");
         student2 = studentRepository.save(student2);
         student2Id = student2.getId();
-        student2Token = jwtUtils.generateToken(student2.getId().toString(), "ROLE_USER").getAccessToken();
+        student2Token = tokenIssuer.issue(student2.getId().toString(), List.of(new SimpleGrantedAuthority("ROLE_USER"))).getAccessToken();
 
         Student student3 = new Student("student3");
         student3 = studentRepository.save(student3);
         student3Id = student3.getId();
-        student3Token = jwtUtils.generateToken(student3.getId().toString(), "ROLE_USER").getAccessToken();
+        student3Token = tokenIssuer.issue(student3.getId().toString(), List.of(new SimpleGrantedAuthority("ROLE_USER"))).getAccessToken();
 
         LocalDateTime start = LocalDateTime.now().minusDays(1);
         LocalDateTime end = start.plusDays(7);

@@ -1,6 +1,5 @@
 package com.rejs.registration.domain.registration.controller.concurrency;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.rejs.registration.TestcontainersConfiguration;
 import com.rejs.registration.domain.entity.Lecture;
 import com.rejs.registration.domain.entity.Registration;
@@ -12,8 +11,7 @@ import com.rejs.registration.domain.registration.repository.RegistrationPeriodRe
 import com.rejs.registration.domain.registration.repository.RegistrationRepository;
 import com.rejs.registration.domain.student.repository.StudentRepository;
 import com.rejs.registration.global.authentication.AuthenticationService;
-import com.rejs.registration.global.authentication.LoginRequest;
-import com.rejs.token_starter.token.JwtUtils;
+import com.rejs.registration.global.authentication.dto.LoginRequest;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,9 +63,6 @@ public class RegistrationCancelConcurrencyTest {
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    @Autowired
-    private JwtUtils jwtUtils;
-
     @LocalServerPort
     private int port;
 
@@ -102,7 +97,7 @@ public class RegistrationCancelConcurrencyTest {
             registrationRepository.save(registration);
 
             LoginRequest loginRequest = new LoginRequest(student.getName(), "password");
-            cancelTokens.add(authenticationService.login(loginRequest).getAccessToken());
+            cancelTokens.add(authenticationService.login(loginRequest).getTokens().getAccessToken());
         }
         lectureRepository.save(lecture);
     }
@@ -113,7 +108,7 @@ public class RegistrationCancelConcurrencyTest {
         List<String> tokens = new ArrayList<>();
         for(int i=0;i<studentCount;i++){
             LoginRequest loginRequest = new LoginRequest("test_username" + i, "password");
-            tokens.add(authenticationService.signup(loginRequest).getAccessToken());
+            tokens.add(authenticationService.signup(loginRequest).getTokens().getAccessToken());
         }
 
         ExecutorService executorService = Executors.newFixedThreadPool(studentCount + cancelStudentCount);

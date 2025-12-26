@@ -9,13 +9,16 @@ import com.rejs.registration.domain.lecture.repository.LectureRepository;
 import com.rejs.registration.domain.registration.repository.RegistrationPeriodRepository;
 import com.rejs.registration.domain.registration.repository.RegistrationRepository;
 import com.rejs.registration.domain.student.repository.StudentRepository;
-import com.rejs.token_starter.token.JwtUtils;
+import com.rejs.registration.global.authentication.token.TokenIssuer;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.restdocs.payload.JsonFieldType;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.web.servlet.ResultActions;
+
+import java.util.List;
 
 import static org.springframework.restdocs.payload.PayloadDocumentation.fieldWithPath;
 import static org.springframework.restdocs.request.RequestDocumentation.parameterWithName;
@@ -37,7 +40,7 @@ class StudentRegistrationControllerTest extends AbstractControllerTest {
     private RegistrationPeriodRepository periodRepository;
 
     @Autowired
-    private JwtUtils jwtUtils;
+    private TokenIssuer tokenIssuer;
 
     private String student1Token;
     private Long studentId;
@@ -52,7 +55,7 @@ class StudentRegistrationControllerTest extends AbstractControllerTest {
         Student student1 = new Student("student1");
         student1 = studentRepository.save(student1);
         studentId = student1.getId();
-        student1Token = jwtUtils.generateToken(student1.getId().toString(), "ROLE_USER").getAccessToken();
+        student1Token = tokenIssuer.issue(student1.getId().toString(), List.of(new SimpleGrantedAuthority("ROLE_USER"))).getAccessToken();
 
         for(int i=1;i<=lectureSize;i++){
             Lecture lecture = new Lecture("이름" + i, 30, 3);
