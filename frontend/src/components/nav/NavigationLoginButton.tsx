@@ -10,33 +10,26 @@ import clsx from "clsx";
 import { LuLogIn, LuLogOut  } from "react-icons/lu";
 import Link from "next/link";
 import toast from "react-hot-toast";
+import {signOut, useSession} from "next-auth/react";
 
 export default function NavigationLoginButton(){
     const [isOpen, setIsOpen] = useState<boolean>(false);
-    const isLogin = useLoginStore((state) => state.isLogin);
-    const login = useLoginStore((state) => state.login);
-    const logout = useLoginStore((state) => state.logout);
     const router = useRouter();
-
-    const fetchLoginInfo = async () => {
-        const resp = await fetch("/api/me");
-        if(resp.ok){
-            login();
-        }
-    }
-
-    useEffect(() => {
-        fetchLoginInfo();
-    }, []);
+    const { data: session, status }  = useSession();
 
     const onLogout = async () => {
         setIsOpen(false);
 
-        const resp = await fetch("/api/logout", {method: "POST"});
-        if(resp.status === 204){
-            logout();
-            toast.success("로그아웃 성공");
-        }else {
+        try{
+             await signOut({
+                redirect: false,
+                callbackUrl: "/"
+            });
+
+            toast.success("로그아웃되었습니다.");
+            router.push("/");
+            router.refresh();
+        }catch (error){
             toast.error("로그아웃 실패");
         }
     }
@@ -56,8 +49,14 @@ export default function NavigationLoginButton(){
             >
                 {/*    드롭다운     */}
                 {
-                    isLogin ? (
+                    status === 'authenticated' ? (
                         <div>
+                            <div className={styles.userInfo}>
+                                <span className={styles.userName}>
+                                    <strong>{session?.user?.name}</strong>님
+                                </span>
+                            </div>
+                            <div className="w-[100%] my-[1%] border-[1px] border-lightGray/30"></div>
                             <Link href={"/students/me"}>
                                 내정보보기
                             </Link>
@@ -65,7 +64,7 @@ export default function NavigationLoginButton(){
                                 className={clsx(styles.iconWithText)}
                                 onClick={onLogout}
                             >
-                                <LuLogOut /> <span>로그아웃</span>
+                                <LuLogOut/> <span>로그아웃</span>
                             </Button>
                         </div>
                     ) : (

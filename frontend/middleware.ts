@@ -1,27 +1,32 @@
-import {NextRequest, NextResponse} from "next/server";
-import {ACCESS_TOKEN_KEY} from "@/src/lib/api/tokenUtils";
+import { NextResponse} from "next/server";
+import {withAuth} from "next-auth/middleware";
 
 
-export async function middleware(req:NextRequest){
-    const token = req.cookies.get(ACCESS_TOKEN_KEY);
-    const {pathname, origin} = req.nextUrl;
-    console.log(`Middleware running for: ${pathname}, Token exists: ${!!token}`);
-    if(!token || !token.value){
-        const loginUrl = new URL("/login", origin)
-        loginUrl.searchParams.set('redirect', pathname);
-        return NextResponse.redirect(loginUrl);
+export default withAuth(
+    function middleware(req) {
+        const { pathname } = req.nextUrl;
+        console.log(`[Middleware] 접근 허용: ${pathname}`);
+        return NextResponse.next();
+    },
+    {
+        callbacks: {
+            // 여기서 true를 반환하면 접근 허용, false면 로그인 페이지로 리다이렉트됩니다.
+            authorized: ({ token }) => !!token,
+        },
+        pages: {
+            // 로그인이 안 되었을 때 보낼 커스텀 페이지 주소
+            signIn: "/login",
+        },
     }
-
-    return NextResponse.next();
-}
+);
 
 export const config = {
     matcher: [
-        '/students/:path*',
-        '/students',
-        '/lectures/:path*',
-        '/lectures',
-        '/admin/:path*',
-        '/admin'
+        "/students/:path*",
+        "/students",
+        "/lectures/:path*",
+        "/lectures",
+        "/admin/:path*",
+        "/admin",
     ],
-}
+};

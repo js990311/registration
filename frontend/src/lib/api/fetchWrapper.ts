@@ -31,7 +31,7 @@ export async function fetchVoid(parameter : FetchParams) : Promise<ApiOneRespons
 
 async function fetchWrapper<T>({endpoint, method='GET', params, headers, withAuth, body} : FetchParams): Promise<T>{
     try {
-        const requestHeaders = await setHeader({headers, withAuth});
+        const requestHeaders = await setHeader({endpoint, headers, withAuth});
         const queryParams = toQuery(params);
         const url = `${BACKEND_HOST}${endpoint}${queryParams}`;
 
